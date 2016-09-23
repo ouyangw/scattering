@@ -15,17 +15,19 @@ public:
   {
   }
 
-  virtual void build_H(std::vector<double> &H, double x)
+  void build_H(MatrixAdaptor &H_uptri, double x)
   {
+    double H00(0);
     if (x > 0)
-      H[0] = m_A * (1.0 - std::exp(-m_B * x));
+      H00 = m_A * (1.0 - std::exp(-m_B * x));
     else
-      H[0] = -m_A * (1.0 - std::exp(m_B * x));
-    H[1] = H[2] = m_C * std::exp(-m_D * x * x);
-    H[3] = -H[0];
+      H00 = -m_A * (1.0 - std::exp(m_B * x));
+    H_uptri.assign(0, 0, H00);
+    H_uptri.assign(1, 1, -H00);
+    H_uptri.assign(0, 1, m_C * std::exp(-m_D * x * x));
   }
 
-  virtual std::string get_description() const
+  std::string get_description() const
   {
     return "Tully #1.";
   }

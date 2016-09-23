@@ -50,13 +50,13 @@ void Scattering::cal_adiab_states()
 {
   const size_t H_size(m_conf.num_states * m_conf.num_states);
   int info(0), lwork(-1);
-  vector<double> work(1), H(H_size),
-      vals(m_conf.num_states);
+  vector<double> work(1), H(H_size), vals(m_conf.num_states);
   char charv('V'), charu('U');
   int matrix_dim(static_cast<int>(m_conf.num_states));
+  MatrixAdaptor mat(H, m_conf.num_states);
 
   // query optimal work array size for diagonalization
-  m_conf.eh_builder_ptr->build_H(H, m_x[0]);
+  m_conf.eh_builder_ptr->build_H(mat, m_x[0]);
   dsyev_(&charv, &charu, &matrix_dim, &H[0], &matrix_dim, &vals[0], &work[0],
          &lwork, &info);
   if (info) {
@@ -70,7 +70,7 @@ void Scattering::cal_adiab_states()
   // calculate adiabatic states for each x
   for (size_t ix(0); ix < m_conf.num_xgrid; ++ix) {
     H.assign(H_size, 0);
-    m_conf.eh_builder_ptr->build_H(H, m_x[ix]);
+    m_conf.eh_builder_ptr->build_H(mat, m_x[ix]);
     dsyev_(&charv, &charu, &matrix_dim, &H[0], &matrix_dim, &vals[0], &work[0],
            &lwork, &info);
     if (info) {

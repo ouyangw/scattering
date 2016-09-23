@@ -1,55 +1,22 @@
 #ifndef SCATTERING_1D_MATRIX_ADAPTOR_HPP
 #define SCATTERING_1D_MATRIX_ADAPTOR_HPP
-#include <cstddef>
+#include <vector>
 namespace scattering_1d
 {
-struct MatrixFormat {
-  enum format {ROWMAJOR, COLUMNMAJOR};
-};
-
-struct MatrixIndexingBase {
-  enum base {ZEROBASED = 0ull, ONEBASED = 1ull};
-};
-
-namespace
-{
-template <typename data_type>
-class MatrixAdaptorBase
+class MatrixAdaptor
 {
 public:
-  MatrixAdaptorBase(data_type *ptr): ptr_(ptr) {}
-
-protected:
-  data_type *ptr_;
-};
-} // anonymous namespace
-
-template <typename data_type, std::size_t dim, MatrixIndexingBase::base N,
-          MatrixFormat::format F>
-class MatrixAdaptor;
-
-template <typename data_type, std::size_t dim, MatrixIndexingBase::base N>
-class MatrixAdaptor<data_type, dim, N, MatrixFormat::ROWMAJOR>
-    : public MatrixAdaptorBase<data_type>
-{
-public:
-  MatrixAdaptor(data_type *ptr): MatrixAdaptorBase<data_type>(ptr) {}
-  data_type &operator()(std::size_t i, std::size_t j)
+  void assign(std::size_t i, std::size_t j, double value)
   {
-    return MatrixAdaptorBase<data_type>::ptr_[(i - N) * dim + (j - N)];
+    m_vec[j * m_dim + i] = value;
   }
-};
 
-template <typename data_type, std::size_t dim, MatrixIndexingBase::base N>
-class MatrixAdaptor<data_type, dim, N, MatrixFormat::COLUMNMAJOR>
-    : public MatrixAdaptorBase<data_type>
-{
 public:
-  MatrixAdaptor(data_type *ptr): MatrixAdaptorBase<data_type>(ptr) {}
-  data_type &operator()(std::size_t i, std::size_t j)
-  {
-    return MatrixAdaptorBase<data_type>::ptr_[(j - N) * dim + (i - N)];
-  }
+  MatrixAdaptor(std::vector<double> &vec, std::size_t dim): m_vec(vec), m_dim(dim) {}
+
+private:
+  std::vector<double> &m_vec;
+  const std::size_t m_dim;
 };
 } // namespace scattering_1d
 #endif

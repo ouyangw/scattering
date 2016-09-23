@@ -1,5 +1,6 @@
 #ifndef SCATTERING_1D_HPP
 #define SCATTERING_1D_HPP
+#include "matrix_adaptor.hpp"
 #include <string>
 #include <vector>
 namespace scattering_1d
@@ -52,9 +53,8 @@ class ElectronicHamiltonianBuilder
 {
 public:
   virtual ~ElectronicHamiltonianBuilder();
-  // build the Hamiltonian
-  // the matrix must be column-major in the vector
-  virtual void build_H(std::vector<double> &H, double x) = 0;
+  // build the upper triangular parts of Hamiltonian
+  virtual void build_H(MatrixAdaptor &H_uptri, double x) = 0;
   // short description of the Hamiltonian
   virtual std::string get_description() const = 0;
 };
