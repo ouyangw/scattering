@@ -1,5 +1,6 @@
 #ifndef COMPLEX_HPP
 #define COMPLEX_HPP
+#include <ostream>
 namespace scattering_1d
 {
 struct Complex {
@@ -11,5 +12,13 @@ struct Complex {
   }
   double norm() const { return real * real + imag * imag; }
 };
+
+////////////////////////////////////////////////////////////////////////////////
+
+inline std::ostream &operator<<(std::ostream &os, const Complex &c)
+{
+  os << c.real << ' ' << c.imag;
+  return os;
+}
 }
 #endif

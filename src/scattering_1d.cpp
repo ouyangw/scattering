@@ -89,6 +89,19 @@ void compute(const Conf &conf, std::vector<Data> &reflection,
 ////////////////////////////////////////////////////////////////////////////////
 
 __attribute__((visibility("default")))
+void print_full_AB(const Conf &conf, std::ostream &os)
+{
+  verify_conf(conf);
+  Scattering comp(conf);
+  comp.cal_adiab_states();
+  comp.setup_channels();
+  comp.setup_equation();
+  comp.print_full_AB(os);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+__attribute__((visibility("default")))
 ElectronicHamiltonianBuilder::~ElectronicHamiltonianBuilder()
 {
 }

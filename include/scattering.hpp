@@ -2,6 +2,7 @@
 #define SCATTERING_HPP
 #include "scattering_1d.hpp"
 #include "complex.hpp"
+#include <iosfwd>
 namespace scattering_1d
 {
 class Scattering
@@ -12,6 +13,7 @@ public:
   void setup_channels();
   void setup_equation();
   void solve_equation(std::vector<Data> &refl, std::vector<Data> &tran);
+  void print_full_AB(std::ostream &os) const;
 
 private:
   const Conf &m_conf;

@@ -3,6 +3,7 @@
 #include "matrix_adaptor.hpp"
 #include <string>
 #include <vector>
+#include <iosfwd>
 namespace scattering_1d
 {
 // Get a brief description of the library (including version info).
@@ -47,6 +48,10 @@ struct Data {
 // (reflection or transmission)
 void compute(const Conf &conf, std::vector<Data> &reflection,
              std::vector<Data> &transmission);
+
+// print full matrix of A and vector of B in Ax=B
+// B is in the last column
+void print_full_AB(const Conf &conf, std::ostream &os);
 
 // Base class for electronic Hamiltonian builder
 class ElectronicHamiltonianBuilder

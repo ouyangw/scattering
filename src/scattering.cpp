@@ -3,7 +3,9 @@
 #include <sstream>
 #include <cmath>
 #include <algorithm>
+#include <ostream>
 #include <mkl.h>
+#include <iostream>
 
 using std::vector;
 using utility::Exception;
@@ -420,6 +422,33 @@ void Scattering::solve_equation(vector<Data> &refl, vector<Data> &tran)
     tran[it].amplitude_imag = x[channel_offset + it].imag;
     tran[it].raw_norm = x[channel_offset + it].norm();
     tran[it].normalized_norm = tran[it].raw_norm * m_k_tran[it] / m_k_inc;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+// one-based indexing!
+void Scattering::print_full_AB(std::ostream &os) const
+{
+  typedef std::vector<int>::const_iterator int_iter_type;
+  typedef std::vector<Complex>::const_iterator complex_iter_type;
+  complex_iter_type B_iter(m_B.begin());
+  Complex zero;
+  const int dim(*std::max_element(m_jA.begin(), m_jA.end()));
+  std::cout << "max col: " << dim << '\n';
+  size_t idx(0);
+  for (int_iter_type rowiter(m_iA.begin() + 1); rowiter != m_iA.end();
+       ++rowiter, ++B_iter) {
+    int col(0);
+    for (; idx < *rowiter - 1; ++idx) {
+      for (; col < m_jA[idx] - 1; ++col)
+        os << zero << ' ';
+      os << m_A[idx] << ' ';
+      ++col;
+    }
+    for (; col < dim; ++col)
+      os << zero << ' ';
+    os << *B_iter << '\n';
   }
 }
 
