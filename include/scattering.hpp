@@ -23,6 +23,7 @@ private:
   std::vector<double> m_x;
   std::vector<double> m_x_fd2;
   std::vector<Complex> m_A, m_B;
+  std::vector<int> m_iA, m_jA;
 };
 }
 #endif

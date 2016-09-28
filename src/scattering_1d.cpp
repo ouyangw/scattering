@@ -29,7 +29,7 @@ namespace scattering_1d
 __attribute__((visibility("default")))
 std::string get_description()
 {
-  return "Scattering calculation for 1D Hamiltonian (v1.0.0)";
+  return "Scattering calculation for 1D Hamiltonian (v2.0.0)";
 }
 
 __attribute__((visibility("default")))
