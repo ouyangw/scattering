@@ -17,7 +17,7 @@ void verify_conf(const scattering_1d::Conf &conf)
     throw Exception("Configuration Error: x_max is not larger than x_min.\n");
   if (conf.kinetic_energy < 0)
     throw Exception("Configuration Error: kinetic energy is negative.\n");
-  if (conf.mass < 0)
+  if (conf.mass <= 0)
     throw Exception("Configuration Error: nuclear mass is negative.\n");
   if (conf.eh_builder_ptr == NULL)
     throw Exception("Configuration Error: eh_builder_ptr is NULL.\n");
