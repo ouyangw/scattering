@@ -11,6 +11,9 @@ void verify_conf(const scattering_1d::Conf &conf)
 {
   if (conf.num_states == 0)
     throw Exception("Configuration Error: num_states is zero.\n");
+  if (conf.inc_state >= conf.num_states)
+    throw Exception(
+        "Configuration Error: inc_state is not within num_states.\n");
   if (conf.num_xgrid == 0)
     throw Exception("Configuration Error: num_xgrid is zero.\n");
   if (conf.x_min >= conf.x_max)
