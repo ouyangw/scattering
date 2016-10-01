@@ -1,11 +1,11 @@
 #include "scattering.hpp"
+#include "lapack.hpp"
 #include "exception.hpp"
+#include <Eigen/SparseLU>
 #include <sstream>
 #include <cmath>
 #include <algorithm>
 #include <ostream>
-#include <mkl.h>
-#include <iostream>
 
 using std::vector;
 using utility::Exception;
@@ -15,27 +15,6 @@ using std::sqrt;
 using std::min;
 using std::sin;
 using std::cos;
-
-// private classes and functions
-namespace
-{
-using namespace scattering_1d;
-struct Coor {
-  Complex val;
-  int row, col;
-  Coor();
-};
-
-bool operator<(const Coor &, const Coor &);
-
-struct CSR3Adaptor {
-  vector<Complex> &values;
-  vector<int> &columns, &row_index;
-  CSR3Adaptor(vector<Complex> &val, vector<int> &col, vector<int> &rowidx);
-};
-
-void coor_to_csr3(vector<Coor> &, CSR3Adaptor &);
-} // anonymous namespace
 
 namespace scattering_1d
 {
@@ -52,10 +31,10 @@ Scattering::Scattering(const Conf &conf)
     , m_k_tran(0)
     , m_x(conf.num_xgrid)
     , m_x_fd2(0)
-    , m_A(0)
-    , m_B(0)
-    , m_iA(0)
-    , m_jA(0)
+    , m_A()
+    , m_B()
+    , m_answer()
+    , m_aux_vec(0)
 {
   for (size_t i(0); i < m_conf.num_xgrid; ++i)
     m_x[i] = m_conf.x_min + i * m_dx;
@@ -163,15 +142,12 @@ void Scattering::setup_equation()
                      channel_element_count);
   const size_t B_dim(m_conf.num_xgrid * m_conf.num_states +
                      m_energy_refl.size() + m_energy_tran.size());
-  m_A.resize(A_dim);
-  m_iA.resize(B_dim + 1);
-  m_jA.resize(A_dim);
+  m_A.resize(B_dim, B_dim);
+  m_aux_vec.reserve(A_dim);
   m_B.resize(B_dim);
+  m_B.setZero();
+  m_answer.resize(B_dim);
 
-  CSR3Adaptor csr3(m_A, m_jA, m_iA);
-
-  // allocate tmp variables
-  vector<Coor> coor(A_dim);
   // global indexing
   size_t Aidx(0);
 
@@ -184,8 +160,8 @@ void Scattering::setup_equation()
     const size_t idx_offset(ix * m_conf.num_states);
     for (size_t is(0); is < m_conf.num_states; ++is) {
       const size_t idx(idx_offset + is);
-      coor[Aidx].val.real = m_all_eigenvals[idx] + m_x_fd2[0] - m_totalE;
-      coor[Aidx].row = coor[Aidx].col = idx;
+      m_aux_vec.push_back(
+          triplet_type(idx, idx, m_all_eigenvals[idx] + m_x_fd2[0] - m_totalE));
       ++Aidx;
     }
   }
@@ -215,14 +191,10 @@ void Scattering::setup_equation()
                        m_all_eigenvecs[idx_offset2 + js];
           const size_t nat_idx1(ix1 * m_conf.num_states + is1);
           const size_t nat_idx2(ix2 * m_conf.num_states + is2);
-          coor[Aidx].val.real = overlap * m_x_fd2[ix2 - ix1];
-          coor[Aidx].row = nat_idx1;
-          coor[Aidx].col = nat_idx2;
-          ++Aidx;
-          coor[Aidx].val.real = coor[Aidx - 1].val.real;
-          coor[Aidx].row = nat_idx2;
-          coor[Aidx].col = nat_idx1;
-          ++Aidx;
+          const double value(overlap * m_x_fd2[ix2 - ix1]);
+          m_aux_vec.push_back(triplet_type(nat_idx1, nat_idx2, value));
+          m_aux_vec.push_back(triplet_type(nat_idx2, nat_idx1, value));
+          Aidx += 2;
         }
       }
     }
@@ -240,66 +212,61 @@ void Scattering::setup_equation()
   // channels
   size_t channel_offset(m_conf.num_xgrid * m_conf.num_states);
   for (size_t ir(0); ir < m_k_refl.size(); ++ir) {
-    coor[Aidx].val.real = m_x_fd2[1] + m_x_fd2[2] * cos(m_k_refl[ir] * m_dx);
-    coor[Aidx].val.imag = m_x_fd2[2] * sin(m_k_refl[ir] * m_dx);
-    coor[Aidx].row = ir;
-    coor[Aidx].col = channel_offset + ir;
+    m_aux_vec.push_back(triplet_type(
+        ir, channel_offset + ir,
+        complex_type(m_x_fd2[1] + m_x_fd2[2] * cos(m_k_refl[ir] * m_dx),
+                     m_x_fd2[2] * sin(m_k_refl[ir] * m_dx))));
     ++Aidx;
 
-    coor[Aidx].val.real = m_x_fd2[2];
-    coor[Aidx].row = m_conf.num_states + ir;
-    coor[Aidx].col = channel_offset + ir;
+    m_aux_vec.push_back(
+        triplet_type(m_conf.num_states + ir, channel_offset + ir, m_x_fd2[2]));
     ++Aidx;
 
-    coor[Aidx].val.real = m_x_fd2[1];
-    coor[Aidx].row = channel_offset + ir;
-    coor[Aidx].col = ir;
+    m_aux_vec.push_back(triplet_type(channel_offset + ir, ir, m_x_fd2[1]));
     ++Aidx;
 
-    coor[Aidx].val.real = m_x_fd2[2];
-    coor[Aidx].row = channel_offset + ir;
-    coor[Aidx].col = m_conf.num_states + ir;
+    m_aux_vec.push_back(
+        triplet_type(channel_offset + ir, m_conf.num_states + ir, m_x_fd2[2]));
     ++Aidx;
 
-    coor[Aidx].val.real = m_energy_refl[ir] - m_totalE + m_x_fd2[0] +
-                          m_x_fd2[1] * cos(m_k_refl[ir] * m_dx) +
-                          m_x_fd2[2] * cos(2.0 * m_k_refl[ir] * m_dx);
-    coor[Aidx].val.imag = m_x_fd2[1] * sin(m_k_refl[ir] * m_dx) +
-                          m_x_fd2[2] * sin(2.0 * m_k_refl[ir] * m_dx);
-    coor[Aidx].row = coor[Aidx].col = channel_offset + ir;
+    m_aux_vec.push_back(triplet_type(
+        channel_offset + ir, channel_offset + ir,
+        complex_type(m_energy_refl[ir] - m_totalE + m_x_fd2[0] +
+                         m_x_fd2[1] * cos(m_k_refl[ir] * m_dx) +
+                         m_x_fd2[2] * cos(2.0 * m_k_refl[ir] * m_dx),
+                     m_x_fd2[1] * sin(m_k_refl[ir] * m_dx) +
+                         m_x_fd2[2] * sin(2.0 * m_k_refl[ir] * m_dx))));
     ++Aidx;
   }
   channel_offset += m_k_refl.size();
   const size_t Nx_offset((m_conf.num_xgrid - 1) * m_conf.num_states);
   const size_t Nx_1_offset((m_conf.num_xgrid - 2) * m_conf.num_states);
   for (size_t it(0); it < m_k_tran.size(); ++it) {
-    coor[Aidx].val.real = m_x_fd2[1] + m_x_fd2[2] * cos(m_k_tran[it] * m_dx);
-    coor[Aidx].val.imag = m_x_fd2[2] * sin(m_k_tran[it] * m_dx);
-    coor[Aidx].row = Nx_offset + it;
-    coor[Aidx].col = channel_offset + it;
+    m_aux_vec.push_back(triplet_type(
+        Nx_offset + it, channel_offset + it,
+        complex_type(m_x_fd2[1] + m_x_fd2[2] * cos(m_k_tran[it] * m_dx),
+                     m_x_fd2[2] * sin(m_k_tran[it] * m_dx))));
     ++Aidx;
 
-    coor[Aidx].val.real = m_x_fd2[2];
-    coor[Aidx].row = Nx_1_offset + it;
-    coor[Aidx].col = channel_offset + it;
+    m_aux_vec.push_back(
+        triplet_type(Nx_1_offset + it, channel_offset + it, m_x_fd2[2]));
     ++Aidx;
 
-    coor[Aidx].val.real = m_x_fd2[1];
-    coor[Aidx].row = channel_offset + it;
-    coor[Aidx].col = Nx_offset + it;
+    m_aux_vec.push_back(
+        triplet_type(channel_offset + it, Nx_offset + it, m_x_fd2[1]));
     ++Aidx;
 
-    coor[Aidx].val.real = m_x_fd2[2];
-    coor[Aidx].row = channel_offset + it;
-    coor[Aidx].col = Nx_1_offset + it;
+    m_aux_vec.push_back(
+        triplet_type(channel_offset + it, Nx_1_offset + it, m_x_fd2[2]));
     ++Aidx;
 
-    coor[Aidx].val.real = m_energy_tran[it] - m_totalE + m_x_fd2[0] +
-                          m_x_fd2[1] * cos(m_k_tran[it] * m_dx) +
-                          m_x_fd2[2] * cos(2.0 * m_k_tran[it] * m_dx);
-    coor[Aidx].val.imag = m_x_fd2[1] * sin(m_k_tran[it] * m_dx) +
-                          m_x_fd2[2] * sin(2.0 * m_k_tran[it] * m_dx);
-    coor[Aidx].row = coor[Aidx].col = channel_offset + it;
+    m_aux_vec.push_back(triplet_type(
+        channel_offset + it, channel_offset + it,
+        complex_type(m_energy_tran[it] - m_totalE + m_x_fd2[0] +
+                         m_x_fd2[1] * cos(m_k_tran[it] * m_dx) +
+                         m_x_fd2[2] * cos(2.0 * m_k_tran[it] * m_dx),
+                     m_x_fd2[1] * sin(m_k_tran[it] * m_dx) +
+                         m_x_fd2[2] * sin(2.0 * m_k_tran[it] * m_dx))));
     ++Aidx;
   }
   // check the number of element inserted
@@ -315,20 +282,21 @@ void Scattering::setup_equation()
     throw Exception(error_ss.str());
   }
 
-  coor_to_csr3(coor, csr3);
+  m_A.setFromTriplets(m_aux_vec.begin(), m_aux_vec.end());
 
   // setup B
-  m_B[m_conf.inc_state].real =
-      -(m_x_fd2[1] + m_x_fd2[2] * cos(-m_k_inc * m_dx));
-  m_B[m_conf.inc_state].imag = -m_x_fd2[2] * sin(-m_k_inc * m_dx);
-  m_B[m_conf.num_states + m_conf.inc_state].real = -m_x_fd2[2];
-  m_B[m_conf.num_xgrid * m_conf.num_states + m_conf.inc_state].real =
-      m_totalE - m_all_eigenvals[m_conf.inc_state] -
-      (m_x_fd2[0] + m_x_fd2[1] * cos(-m_k_inc * m_dx) +
-       m_x_fd2[2] * cos(-2.0 * m_k_inc * m_dx));
-  m_B[m_conf.num_xgrid * m_conf.num_states + m_conf.inc_state].imag =
-      -(m_x_fd2[1] * sin(-m_k_inc * m_dx) +
-        m_x_fd2[2] * sin(-2.0 * m_k_inc * m_dx));
+  m_B(m_conf.inc_state) =
+      complex_type(-(m_x_fd2[1] + m_x_fd2[2] * cos(-m_k_inc * m_dx)),
+                   -m_x_fd2[2] * sin(-m_k_inc * m_dx));
+
+  m_B(m_conf.num_states + m_conf.inc_state) = -m_x_fd2[2];
+
+  m_B(m_conf.num_xgrid * m_conf.num_states + m_conf.inc_state) =
+      complex_type(m_totalE - m_all_eigenvals[m_conf.inc_state] -
+                       (m_x_fd2[0] + m_x_fd2[1] * cos(-m_k_inc * m_dx) +
+                        m_x_fd2[2] * cos(-2.0 * m_k_inc * m_dx)),
+                   -(m_x_fd2[1] * sin(-m_k_inc * m_dx) +
+                     m_x_fd2[2] * sin(-2.0 * m_k_inc * m_dx)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -350,77 +318,25 @@ void Scattering::solve_equation(vector<Data> &refl, vector<Data> &tran)
   // clear cache eigenvalues
   vector<double>(0).swap(m_all_eigenvals);
 
-  // one-based indexing for pardiso input data!
-  // pardiso init
-  int mtype(3);
-  vector<void *> pt(64);
-  vector<MKL_INT> iparm(64);
-  pardisoinit(&pt[0], &mtype, &iparm[0]);
+  // solve the equation
+  Eigen::SparseLU<sparse_mat_type> solver;
 
-  // pardiso setup
-  // iparm[1] = 3; // for OpenMP parallelization
-  // iparm[23] = 1; // for parallel factorization with more than 8 cpu
-  iparm[26] = 1; // enable checks for CSR3 correctness
-
-  // pardiso parameters
-  MKL_INT maxfct(1), mnum(1), n(m_B.size());
-  vector<MKL_INT> perm(n);
-  MKL_INT nrhs(1), msglvl(0);
-  vector<Complex> x(n);
-  MKL_INT error(0);
-
-  // phase: Analysis
-  MKL_INT phase(11);
-  pardiso(&pt[0], &maxfct, &mnum, &mtype, &phase, &n, &m_A[0], &m_iA[0],
-          &m_jA[0], &perm[0], &nrhs, &iparm[0], &msglvl, &m_B[0], &x[0],
-          &error);
-  if (error) {
-    // release memory
-    phase = -1;
-    MKL_INT error_release_mem(0);
-    pardiso(&pt[0], &maxfct, &mnum, &mtype, &phase, &n, &m_A[0], &m_iA[0],
-            &m_jA[0], &perm[0], &nrhs, &iparm[0], &msglvl, &m_B[0], &x[0],
-            &error_release_mem);
-    stringstream error_ss;
-    error_ss << "Error Pardiso Phase 1: error code: " << error << '\n';
-    if (error_release_mem)
-      error_ss << "Error Pardiso Memory Release: error code: "
-               << error_release_mem << '\n';
-    throw Exception(error_ss.str());
-  }
-
-  // phase: Numerical factorization; Solve
-  phase = 23;
-  pardiso(&pt[0], &maxfct, &mnum, &mtype, &phase, &n, &m_A[0], &m_iA[0],
-          &m_jA[0], &perm[0], &nrhs, &iparm[0], &msglvl, &m_B[0], &x[0],
-          &error);
-  if (error) {
-    // release memory
-    phase = -1;
-    MKL_INT error_release_mem(0);
-    pardiso(&pt[0], &maxfct, &mnum, &mtype, &phase, &n, &m_A[0], &m_iA[0],
-            &m_jA[0], &perm[0], &nrhs, &iparm[0], &msglvl, &m_B[0], &x[0],
-            &error_release_mem);
-    stringstream error_ss;
-    error_ss << "Error Pardiso Phase 23: error code: " << error << '\n';
-    if (error_release_mem)
-      error_ss << "Error Pardiso Memory Release: error code: "
-               << error_release_mem << '\n';
-    throw Exception(error_ss.str());
-  }
+  solver.analyzePattern(m_A);
+  solver.factorize(m_A);
+  m_answer = solver.solve(m_B);
 
   size_t channel_offset(m_conf.num_xgrid * m_conf.num_states);
   for (size_t ir(0); ir < m_k_refl.size(); ++ir) {
-    refl[ir].amplitude_real = x[channel_offset + ir].real;
-    refl[ir].amplitude_imag = x[channel_offset + ir].imag;
-    refl[ir].raw_norm = x[channel_offset + ir].norm();
+    refl[ir].amplitude_real = m_answer(channel_offset + ir).real();
+    refl[ir].amplitude_imag = m_answer(channel_offset + ir).imag();
+    refl[ir].raw_norm = std::norm(m_answer(channel_offset + ir));
     refl[ir].normalized_norm = refl[ir].raw_norm * m_k_refl[ir] / m_k_inc;
   }
   channel_offset += m_k_refl.size();
   for (size_t it(0); it < m_k_tran.size(); ++it) {
-    tran[it].amplitude_real = x[channel_offset + it].real;
-    tran[it].amplitude_imag = x[channel_offset + it].imag;
-    tran[it].raw_norm = x[channel_offset + it].norm();
+    tran[it].amplitude_real = m_answer(channel_offset + it).real();
+    tran[it].amplitude_imag = m_answer(channel_offset + it).imag();
+    tran[it].raw_norm = std::norm(m_answer(channel_offset + it));
     tran[it].normalized_norm = tran[it].raw_norm * m_k_tran[it] / m_k_inc;
   }
 }
@@ -430,93 +346,25 @@ void Scattering::solve_equation(vector<Data> &refl, vector<Data> &tran)
 // one-based indexing!
 void Scattering::print_full_AB(std::ostream &os) const
 {
-  typedef std::vector<int>::const_iterator int_iter_type;
-  typedef std::vector<Complex>::const_iterator complex_iter_type;
-  complex_iter_type B_iter(m_B.begin());
-  Complex zero;
-  const int dim(*std::max_element(m_jA.begin(), m_jA.end()));
-  std::cout << "max col: " << dim << '\n';
-  size_t idx(0);
-  for (int_iter_type rowiter(m_iA.begin() + 1); rowiter != m_iA.end();
-       ++rowiter, ++B_iter) {
-    int col(0);
-    for (; idx < *rowiter - 1; ++idx) {
-      for (; col < m_jA[idx] - 1; ++col)
-        os << zero << ' ';
-      os << m_A[idx] << ' ';
+  typedef Eigen::SparseMatrix<sparse_mat_type::Scalar, Eigen::RowMajor,
+                              sparse_mat_type::Index>
+      row_mat_type;
+  row_mat_type tmp(m_A);
+  typedef sparse_mat_type::Index idx_type;
+  for (idx_type row(0); row < tmp.outerSize(); ++row) {
+    idx_type col(0);
+    for (row_mat_type::InnerIterator it(tmp, row); it; ++it) {
+      for (; col < it.index(); ++col)
+        os << "0 0 ";
+      os << it.value().real() << ' ' << it.value().imag() << ' ';
       ++col;
     }
-    for (; col < dim; ++col)
-      os << zero << ' ';
-    os << *B_iter << '\n';
+    for (; col < tmp.cols(); ++col)
+      os << "0 0 ";
+    os << m_B(row).real() << ' ' << m_B(row).imag() << '\n';
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // namespace scattering_1d
-
-// implementations of the private classes and functions
-namespace
-{
-Coor::Coor()
-    : val()
-    , row(0)
-    , col(0)
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CSR3Adaptor::CSR3Adaptor(vector<Complex> &val, vector<int> &col,
-                         vector<int> &rowidx)
-    : values(val)
-    , columns(col)
-    , row_index(rowidx)
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-// one-based indexing!
-void coor_to_csr3(std::vector<Coor> &coor, CSR3Adaptor &csr3)
-{
-  typedef std::vector<Complex>::iterator complex_iter_type;
-  typedef std::vector<Coor>::iterator coor_iter_type;
-  typedef std::vector<int>::iterator int_iter_type;
-  std::sort(coor.begin(), coor.end());
-  csr3.values.resize(coor.size());
-  csr3.columns.resize(coor.size());
-  csr3.row_index.resize(coor.back().row + 2);
-  int rowidx(1), old_row(-1);
-  coor_iter_type coor_it(coor.begin());
-  complex_iter_type val_it(csr3.values.begin());
-  int_iter_type rowidx_it(csr3.row_index.begin());
-  int_iter_type col_it(csr3.columns.begin());
-  for (; coor_it != coor.end(); ++coor_it, ++val_it, ++col_it, ++rowidx) {
-    *val_it = coor_it->val;
-    *col_it = coor_it->col + 1;
-    if (coor_it->row != old_row) {
-      old_row = coor_it->row;
-      *rowidx_it = rowidx;
-      ++rowidx_it;
-    }
-  }
-  *rowidx_it = rowidx;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-bool operator<(const Coor &lhs, const Coor &rhs)
-{
-  if (lhs.row < rhs.row)
-    return true;
-  else if (lhs.row == rhs.row) {
-    if (lhs.col < rhs.col)
-      return true;
-    else
-      return false;
-  } else
-    return false;
-}
-} // anonymous namespace
