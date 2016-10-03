@@ -6,7 +6,7 @@ set (CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/)
 
 include (BasicSetup)
 
-set (${PROJNAME}_EIGEN_INCLUDE /usr/local/ CACHE PATH
+set (${PROJNAME}_EIGEN_INCLUDE /usr/local/include/ CACHE PATH
   "path to the Eigen headers")
 
 add_library (scattering SHARED ./src/scattering_1d.cpp
