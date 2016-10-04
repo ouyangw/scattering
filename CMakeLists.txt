@@ -20,4 +20,4 @@ set_target_properties (scattering PROPERTIES
 target_compile_options (scattering PUBLIC ${${PROJNAME}_WARNING_FLAG})
 
 
-add_subdirectory (tests EXCLUDE_FROM_ALL)
+add_subdirectory (examples EXCLUDE_FROM_ALL)
