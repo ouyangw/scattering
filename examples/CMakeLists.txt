@@ -1,4 +1,4 @@
-project (TestSuite CXX)
+project (Examples CXX)
 include_directories (${CMAKE_SOURCE_DIR}/include/)
 
 add_executable (tully_1.exe ./tully_1/main.cpp)
@@ -33,12 +33,12 @@ target_link_libraries (tully_3_range.exe scattering)
 set_target_properties (tully_3_range.exe PROPERTIES 
   RUNTIME_OUTPUT_DIRECTORY bin/)
 
-add_custom_target (test_suite)
-add_dependencies (test_suite tully_1.exe
-                             tully_1_range.exe
-                             tully_1_print.exe
-                             tully_2.exe
-                             tully_2_range.exe
-                             tully_3.exe
-                             tully_3_range.exe
-                             )
+add_custom_target (examples)
+add_dependencies (examples tully_1.exe
+                           tully_1_range.exe
+                           tully_1_print.exe
+                           tully_2.exe
+                           tully_2_range.exe
+                           tully_3.exe
+                           tully_3_range.exe
+                           )

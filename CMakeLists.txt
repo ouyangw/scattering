@@ -21,4 +21,4 @@ target_compile_options (scattering PUBLIC ${${PROJNAME}_WARNING_FLAG})
 target_include_directories (scattering PUBLIC ${${PROJNAME}_EIGEN_INCLUDE})
 
 
-add_subdirectory (tests EXCLUDE_FROM_ALL)
+add_subdirectory (examples EXCLUDE_FROM_ALL)
