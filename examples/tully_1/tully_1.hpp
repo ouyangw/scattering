@@ -15,21 +15,21 @@ public:
   {
   }
 
-  void build_H(MatrixAdaptor &H_uptri, double x)
+  void build_H(std::vector<MatrixElement> &H_uptri, double x)
   {
     double H00(0);
     if (x > 0)
       H00 = m_A * (1.0 - std::exp(-m_B * x));
     else
       H00 = -m_A * (1.0 - std::exp(m_B * x));
-    H_uptri.assign(0, 0, H00);
-    H_uptri.assign(1, 1, -H00);
-    H_uptri.assign(0, 1, m_C * std::exp(-m_D * x * x));
+    H_uptri.push_back(MatrixElement(0, 0, H00));
+    H_uptri.push_back(MatrixElement(1, 1, -H00));
+    H_uptri.push_back(MatrixElement(0, 1, m_C * std::exp(-m_D * x * x)));
   }
 
   std::string get_description() const
   {
-    return "Tully #1.";
+    return "Tully #1. [J. Chem. Phys. 93, 1061 (1990)]";
   }
 
 private:

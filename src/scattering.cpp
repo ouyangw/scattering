@@ -53,13 +53,14 @@ Scattering::Scattering(const Conf &conf)
 
 void Scattering::cal_adiab_states()
 {
-  typedef Eigen::SelfAdjointEigenSolver<MatrixAdaptor::el_mat_type>
-      eigen_solver_type;
+  typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> el_mat_type;
+  typedef Eigen::SelfAdjointEigenSolver<el_mat_type> eigen_solver_type;
   typedef eigen_solver_type::RealVectorType eval_type;
   typedef eigen_solver_type::EigenvectorsType evec_type;
+  typedef vector<MatrixElement>::iterator vme_iter_type;
   const size_t H_size(m_conf.num_states * m_conf.num_states);
-  MatrixAdaptor::el_mat_type H(m_conf.num_states, m_conf.num_states);
-  MatrixAdaptor mat(H);
+  vector<MatrixElement> mat_elements;
+  el_mat_type H(m_conf.num_states, m_conf.num_states);
   eigen_solver_type solver;
   eval_type vals(m_conf.num_states);
   evec_type vecs(m_conf.num_states, m_conf.num_states);
@@ -67,7 +68,14 @@ void Scattering::cal_adiab_states()
   // calculate adiabatic states for each x
   for (size_t ix(0); ix < m_conf.num_xgrid; ++ix) {
     H.setZero();
-    m_conf.eh_builder_ptr->build_H(mat, m_x[ix]);
+    mat_elements.resize(0);
+    m_conf.eh_builder_ptr->build_H(mat_elements, m_x[ix]);
+    for (vme_iter_type vme_iter(mat_elements.begin());
+         vme_iter != mat_elements.end(); ++vme_iter) {
+      H(vme_iter->i, vme_iter->j) = vme_iter->value;
+      H(vme_iter->j, vme_iter->i) = vme_iter->value;
+    }
+
     solver.compute(H);
     if (solver.info() != Eigen::Success) {
       stringstream error_ss;
