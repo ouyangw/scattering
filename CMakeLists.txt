@@ -17,6 +17,8 @@ set_target_properties (scattering PROPERTIES
   CXX_STANDARD ${${PROJNAME}_CXXSTANDARD}
   CXX_STANDARD_REQUIRED TRUE
   CXX_VISIBILITY_PRESET hidden
+  VERSION 1.0.0
+  SOVERSION 1.0
   )
 target_compile_options (scattering PUBLIC ${${PROJNAME}_WARNING_FLAG})
 target_include_directories (scattering PUBLIC ${${PROJNAME}_EIGEN_INCLUDE})
@@ -31,6 +33,10 @@ set_target_properties (scattering_static PROPERTIES
 target_compile_options (scattering_static PUBLIC ${${PROJNAME}_WARNING_FLAG})
 target_include_directories (scattering_static
   PUBLIC ${${PROJNAME}_EIGEN_INCLUDE})
+
+install (TARGETS scattering scattering_static LIBRARY DESTINATION lib/
+  ARCHIVE DESTINATION lib/)
+install (FILES ./include/scattering_1d.hpp DESTINATION include/)
 
 
 add_subdirectory (examples EXCLUDE_FROM_ALL)
