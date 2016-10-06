@@ -151,7 +151,7 @@ directory without worrying about accidentally deleting any source code.
 The variables start with `LIBSCATTERING_` prefix are variables specific to this
 library.
 
-#### CMAKE_INSTALL_PREFIX
+#### `CMAKE_INSTALL_PREFIX`
 
 A notable CMake built-in variable is `CMAKE_INSTALL_PREFIX`. This variable
 contains the path the program will be installed to when running `cmake
@@ -159,22 +159,22 @@ install`. If you are planning to install the library, you might want to
 change this variable because the default value is `/usr/local/` which
 requires root access to write.
 
-#### LIBSCATTERING_CHECK_CXXSTANDARD
+#### `LIBSCATTERING_CHECK_CXXSTANDARD`
 
 This boolean variable dictates whether detecting C++11/14 availability. Default
 is `ON`.
 
-#### LIBSCATTERING_CXXSTANDARD
+#### `LIBSCATTERING_CXXSTANDARD`
 
 This string variable dictates the C++ standard to use. Default is the highest
 detected. Can be set as `98`, `11` or `14`.
 
-#### LIBSCATTERING_EIGEN_INCLUDE
+#### `LIBSCATTERING_EIGEN_INCLUDE`
 
 This path variable sets the path to the Eigen headers. Default is
 `/usr/local/include/`.
 
-#### LIBSCATTERING_WARNING_FLAG
+#### `LIBSCATTERING_WARNING_FLAG`
 
 This string variable sets the warning flag when compiling the code. It must
 be a semicolumn(;) separated list.
@@ -196,12 +196,12 @@ The public headers users should be using are `scattering_1d.hpp` and
 install`. The other headers in `include/` are private interface that are
 subject to change without notice.
 
-### std::string get_description()
+### `std::string get_description()`
 
 This function returns a string with a brief description of the library. It helps
 users to keep track of the version of the library used in the calculation.
 
-### void compute(const Conf &conf, std::vector<Data> &reflection, std::vector<Data> &transmission)
+### `void compute(const Conf &conf, std::vector<Data> &reflection, std::vector<Data> &transmission)`
 
 This is the function that does the scattering calculation. 
 
@@ -216,7 +216,7 @@ The data structure of `Conf` and `Data` will be given [below](#struct-conf).
 The function will first check the validity of `conf`. If there is an error in
 `conf`, the function will throw an exception with the explanation of the error.
 
-### void print_full_AB(const Conf &conf, std::ostream &os);
+### `void print_full_AB(const Conf &conf, std::ostream &os);`
 
 Rather than doing the scattering calculation, this function prints the
 resulting matrix and vector in the final equation Ax=B to output stream. This
@@ -233,7 +233,31 @@ output matrix.
 The function will first check the validity of `conf`. If there is an error in
 `conf`, the function will throw an exception with the explanation of the error.
 
-### struct Conf
+### `void check_electronic_hamiltonian_builder(const Conf &conf, double x, std::ostream &os);`
+
+This is a convenient helper function to check if the user provided electronic
+Hamiltonian builder follows the rules when building the Hamiltonian. The rules
+checked are:
+
+1. Index is not beyond number of states (index is zero-based)
+2. Row index is no larger than column index. (must be upper triangular part)
+
+Vriable | Input/Output | Usage
+--- | --- | ---
+`conf` | Input | The configuration for a intended calculation
+`x` | Input | The position at which a electronic Hamiltonian is built
+`os` | Input | The stream to which the information is written
+
+If the check is clear, the full electronic Hamiltonian built at position `x`
+will be written to stream `os`. If there is an error, the elements stored in
+the vector are written to `os` and an exception with error message will be
+thrown.
+
+*Note: This is a very basic technical checking for the Hamiltonian builder.
+Users are encouraged to do more comprehensive unit testing on their Hamiltonian
+builder before using it in the calculation.*
+
+### `struct Conf`
 
 This is the struct containing all the configurations for the calculation.
 
@@ -260,7 +284,7 @@ of the output string is prefixed by `prefix` and a space. So users can dump this
 string into their output file for a record, and the `prefix` serves as a comment
 marker so users can read the data in other program more easily.
 
-### struct Data
+### `struct Data`
 
 This is the struct of the output data from `compute`.
 
@@ -281,12 +305,16 @@ value normalized against the incoming and outgoing momenta. The detail is in the
 cited paper. The `normalized_norm` is the coefficient users should be looking
 at.
 
-### class ElectronicHamiltonianBuilder
+### `class ElectronicHamiltonianBuilder`
 
 The class `ElectronicHamiltonianBuilder` is the abstract base class users
-should inherit to provide the implementation of building the electronic
-Hamiltonian. For C++ novice, it is easier to just follow the 
+should inherit to provide the implementation of building upper triangular part
+of the electronic Hamiltonian. For C++ novice, it is easier to just follow the
 [examples](examples/).
+
+*Warning: If the `build_H` function does not build the upper triangular part of
+the Hamiltonian (for instance the full Hamiltonian instead), the program is not
+guaranteed to produce correct results.*
 
 ```c++
 class ElectronicHamiltonianBuilder
@@ -294,35 +322,34 @@ class ElectronicHamiltonianBuilder
 public:
   virtual ~ElectronicHamiltonianBuilder();
   // build the upper triangular parts of Hamiltonian
-  virtual void build_H(MatrixAdaptor &H_uptri, double x) = 0;
+  virtual void build_H(std::vector<MatrixElement> &H_uptri, double x) = 0;
   // short description of the Hamiltonian
   virtual std::string get_description() const = 0;
 };
 ```
 
-#### virtual void build_H(MatrixAdaptor &H_uptri, double x)
+#### `virtual void build_H(std::vector<MatrixElement> &H_uptri, double x)`
 
-User must implement this member function in their class to build the electronic
-Hamiltonian given a nuclear position of `x`.
+User must implement this member function in their class to build upper
+triangular part of the electronic Hamiltonian given a nuclear position of `x`.
+In practice, user should use the `push_back` function to insert the elements
+into the vector. The vector are reset to empty before this member function is
+called. Please refer to the [examples](examples/) for examples.
 
-#### virtual std::string get_description() const
+#### `virtual std::string get_description() const`
 
 User must implement this member function in their class to return a string of
-brief description of the electronic Hamiltonian. This string is not involved in
-the scattering calculation but only serve as a output in `Conf::echo` so users
-can keep track of what Hamiltonian is used in the calculation.
+a brief description of the electronic Hamiltonian. This string is not involved
+in the scattering calculation but only serve as a output in `Conf::echo` so
+users can keep track of what Hamiltonian is used in the calculation.
 
-### class MatrixAdaptor
+### `struct MatrixElement`
 
-This is a helper adapter to hide the actual container for the matrix, so the
-interface can be made consistent across different versions of the code. 
+This is the struct representing the elements in the electronic Hamiltonian in
+the form of (row, column, value). The row and column are zero-based index. The
+class has a convenience constructor for an easy insertion of elements into the
+vector given in `ElectronicHamiltonianBuilder::build_H`.
 
-Users are supposed to use the member function to build up the electronic
-Hamiltonian in `ElectronicHamiltonianBuilder::build_H`. Users should not try to
-make the adapter nor are they responsible for making the adapter.
+#### `MatrixElement(std::size_t i, std::size_t j, double value)`
 
-#### void assign(std::size_t i, std::size_t j, double value)
-
-This member function assign the matrix element at `(i+1)`th row and `(j+1)`th
-column with the `value`. The `i` and `j` are zero-based index for row and
-column, respectively.
+`i` is the row index and `j` is the column index (zero-based).

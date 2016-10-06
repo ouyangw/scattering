@@ -12,6 +12,7 @@ Directory | Content | Time\*
 `tully_1` | Tully #1 with one incoming momentum | 0.02s
 `tully_1_print` | Tully #1 with one incoming momentum. Print the matrix A and vector B to file `tully_1_print.dat` | 0.007s
 `tully_1_range` | Tully #1 with a range of incoming momenta. Reproduce the result in the paper. Results in file `tully_1_range.dat`. | 32s
+`tully_1_check` | Tully #1 with correct and wrong implementation | 0.007s
 `tully_2` | Tully #2 with one incoming momentum | 0.055s
 `tully_2_range` | Tully #2 with a range of incoming momenta. Reproduce the result in the paper. Results in file `tully_2_range.dat`. | 288s
 `tully_3` | Tully #3 with one incoming momentum | 0.03s
@@ -20,7 +21,7 @@ Directory | Content | Time\*
 \**The time is measured on a Mac mini (Mid 2011) with 2.5 GHz Intel Core i5 
 using `time` commandline utility and the `real` time in the result.*
 
-The data from a range of incoming momenta a written into file with 7 columns:
+The data from a range of incoming momenta are written into file with 7 columns:
 
 1. incoming energy
 2. incoming momentum
