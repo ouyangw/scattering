@@ -8,6 +8,13 @@ namespace scattering_1d
 {
 class Scattering
 {
+  typedef std::complex<double> complex_type;
+  typedef Eigen::SparseMatrix<complex_type> sparse_mat_type;
+  typedef Eigen::Triplet<complex_type, sparse_mat_type::Index> triplet_type;
+  typedef Eigen::Matrix<complex_type, Eigen::Dynamic, 1> vec_type;
+  typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> el_mat_type;
+  typedef std::vector<MatrixElement> element_vec_type;
+
 public:
   Scattering(const Conf &conf);
   void cal_adiab_states();
@@ -16,11 +23,11 @@ public:
   void solve_equation(std::vector<Data> &refl, std::vector<Data> &tran);
   void print_full_AB(std::ostream &os) const;
 
+public:
+  static void vec_to_H(el_mat_type &, element_vec_type &);
+  static void print_H(const Conf &conf, element_vec_type &, std::ostream &);
+
 private:
-  typedef std::complex<double> complex_type;
-  typedef Eigen::SparseMatrix<complex_type> sparse_mat_type;
-  typedef Eigen::Triplet<complex_type, sparse_mat_type::Index> triplet_type;
-  typedef Eigen::Matrix<complex_type, Eigen::Dynamic, 1> vec_type;
   const Conf &m_conf;
   double m_totalE;
   const double m_dx;

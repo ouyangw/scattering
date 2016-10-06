@@ -15,6 +15,7 @@ using std::sqrt;
 using std::min;
 using std::sin;
 using std::cos;
+using std::ostream;
 
 namespace scattering_1d
 {
@@ -57,9 +58,8 @@ void Scattering::cal_adiab_states()
   typedef Eigen::SelfAdjointEigenSolver<el_mat_type> eigen_solver_type;
   typedef eigen_solver_type::RealVectorType eval_type;
   typedef eigen_solver_type::EigenvectorsType evec_type;
-  typedef vector<MatrixElement>::iterator vme_iter_type;
   const size_t H_size(m_conf.num_states * m_conf.num_states);
-  vector<MatrixElement> mat_elements;
+  element_vec_type mat_elements;
   el_mat_type H(m_conf.num_states, m_conf.num_states);
   eigen_solver_type solver;
   eval_type vals(m_conf.num_states);
@@ -67,14 +67,9 @@ void Scattering::cal_adiab_states()
 
   // calculate adiabatic states for each x
   for (size_t ix(0); ix < m_conf.num_xgrid; ++ix) {
-    H.setZero();
     mat_elements.resize(0);
     m_conf.eh_builder_ptr->build_H(mat_elements, m_x[ix]);
-    for (vme_iter_type vme_iter(mat_elements.begin());
-         vme_iter != mat_elements.end(); ++vme_iter) {
-      H(vme_iter->i, vme_iter->j) = vme_iter->value;
-      H(vme_iter->j, vme_iter->i) = vme_iter->value;
-    }
+    vec_to_H(H, mat_elements);
 
     solver.compute(H);
     if (solver.info() != Eigen::Success) {
@@ -347,7 +342,7 @@ void Scattering::solve_equation(vector<Data> &refl, vector<Data> &tran)
 ////////////////////////////////////////////////////////////////////////////////
 
 // one-based indexing!
-void Scattering::print_full_AB(std::ostream &os) const
+void Scattering::print_full_AB(ostream &os) const
 {
   typedef Eigen::SparseMatrix<sparse_mat_type::Scalar, Eigen::RowMajor,
                               sparse_mat_type::Index>
@@ -366,6 +361,28 @@ void Scattering::print_full_AB(std::ostream &os) const
       os << "0 0 ";
     os << m_B(row).real() << ' ' << m_B(row).imag() << '\n';
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Scattering::vec_to_H(el_mat_type &H, element_vec_type &vec)
+{
+  H.setZero();
+  for (element_vec_type::iterator vme_iter(vec.begin()); vme_iter != vec.end();
+       ++vme_iter) {
+    H(vme_iter->i, vme_iter->j) = vme_iter->value;
+    H(vme_iter->j, vme_iter->i) = vme_iter->value;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Scattering::print_H(const Conf &conf, element_vec_type &vec,
+                         ostream &os)
+{
+  el_mat_type H(conf.num_states, conf.num_states);
+  vec_to_H(H, vec);
+  os << H << '\n';
 }
 
 ////////////////////////////////////////////////////////////////////////////////
