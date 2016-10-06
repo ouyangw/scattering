@@ -9,8 +9,9 @@ include (BasicSetup)
 set (${PROJNAME}_EIGEN_INCLUDE /usr/local/include/ CACHE PATH
   "path to the Eigen headers")
 
-add_library (scattering SHARED ./src/scattering_1d.cpp
-                                  ./src/scattering.cpp)
+set (SRC_FILES ./src/scattering_1d.cpp ./src/scattering.cpp)
+
+add_library (scattering SHARED ${SRC_FILES})
 target_include_directories (scattering PRIVATE ./include)
 set_target_properties (scattering PROPERTIES 
   CXX_STANDARD ${${PROJNAME}_CXXSTANDARD}
@@ -19,6 +20,17 @@ set_target_properties (scattering PROPERTIES
   )
 target_compile_options (scattering PUBLIC ${${PROJNAME}_WARNING_FLAG})
 target_include_directories (scattering PUBLIC ${${PROJNAME}_EIGEN_INCLUDE})
+
+add_library (scattering_static STATIC ${SRC_FILES})
+target_include_directories (scattering_static PRIVATE ./include)
+set_target_properties (scattering_static PROPERTIES 
+  CXX_STANDARD ${${PROJNAME}_CXXSTANDARD}
+  CXX_STANDARD_REQUIRED TRUE
+  CXX_VISIBILITY_PRESET hidden
+  )
+target_compile_options (scattering_static PUBLIC ${${PROJNAME}_WARNING_FLAG})
+target_include_directories (scattering_static
+  PUBLIC ${${PROJNAME}_EIGEN_INCLUDE})
 
 
 add_subdirectory (examples EXCLUDE_FROM_ALL)
