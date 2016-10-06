@@ -8,7 +8,7 @@ Please cite the paper if you use the code.
 This version use Eigen 3 ([http://eigen.tuxfamily.org/](http://eigen.tuxfamily.org/))
 for matrix diagonalization and solving sparse linear systems. The Eigen library
 is not included and user should install Eigen before compiling the codes. The
-Eigen library is open-source, free and header-only, which mean user only need
+Eigen library is open-source, free and header-only, which means user only need
 to copy the Eigen headers into a directory of user's choice.
 
 ### Features:
@@ -16,7 +16,7 @@ to copy the Eigen headers into a directory of user's choice.
 - Modular design makes the code easy to use and modify.
 - Potential energy surface independent and the API is consistent across all
   versions of the codes.
-- Library only so users are free to write their own caller function (the
+- Library-only so users are free to write their own caller function (the
   simplest case is the `main()` function) which deals with input and output in
   the way the most appropriate for the users.
 - Several example codes provided to get users started quickly.
@@ -78,10 +78,11 @@ users just need to provide the path to the source in the next step.
 
 Configure the build system using `cmake`:
 ```bash
-cmake <path-to-source>
+cmake [-D LIBSCATTERING_EIGEN_INCLUDE=<path-to-eigen-headers>] <path-to-source>
 ```
-Next section has more advanced ways to configure the build system, but they are
-optional.
+The optional variable `LIBSCATTERING_EIGEN_INCLUDE` sets the path to the Eigen's
+header files. The default value is `/usr/local/include/`. Next section has more
+advanced ways to configure the build system, but they are optional.
 
 *Note: If user uses the GUI version of CMake, user should fill in the source and
 build directory and click "configure", optionally change the variables, then
@@ -110,7 +111,8 @@ headers and the library.
 ## Configure the Build System:
 
 This section is the instruction of more advanced configuration of the build
-system using CMake. It is optional and safe to skip.
+system using CMake. It is optional and safe to skip. The full documentation of
+`cmake` can be found on its [website](https://cmake.org/documentation/).
 
 To configure the build system with more control, the following command can be
 used:
@@ -149,7 +151,8 @@ directory without worrying about accidentally deleting any source code.
 ### Configuration Variables
 
 The variables start with `LIBSCATTERING_` prefix are variables specific to this
-library.
+library. The documentation for CMake built-in variables can be found on its
+[website](https://cmake.org/documentation/).
 
 #### `CMAKE_INSTALL_PREFIX`
 
