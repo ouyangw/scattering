@@ -30,6 +30,10 @@ The data from a range of incoming momenta are written into file with 7 columns:
 5. transmission coefficient on lower state
 6. transmission coefficient on upper state
 
+The generated result files are kept in the respective directories, and
+the standard output of each program is kept in the file with an extension of
+`.stdout`.
+
 ## How To Use the Examples
 
 These examples also serve as minimal working codes for users to get started
