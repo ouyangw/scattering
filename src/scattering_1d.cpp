@@ -39,7 +39,7 @@ namespace scattering_1d
 __attribute__((visibility("default")))
 string get_description()
 {
-  return "Scattering calculation for 1D Hamiltonian (v1.0.0)";
+  return "Scattering calculation for 1D Hamiltonian (v1.0.0 Eigen)";
 }
 
 __attribute__((visibility("default")))

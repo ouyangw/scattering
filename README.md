@@ -1,4 +1,4 @@
-# 1D Scattering Calculation Library (v2 Eigen)
+# 1D Scattering Calculation Library (v1 Eigen)
 
 This is a implementation of quantum scattering calculation in a one dimension
 system. The algorithm can be found in the Appendix of the paper 
