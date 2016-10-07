@@ -1,4 +1,4 @@
-#include "tully_1.hpp"
+#include "../tully_1/tully_1.hpp"
 #include "scattering_1d.hpp"
 #include <iostream>
 #include <vector>
