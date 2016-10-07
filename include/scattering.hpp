@@ -8,6 +8,7 @@ namespace scattering_1d
 {
 class Scattering
 {
+public:
   typedef std::complex<double> complex_type;
   typedef Eigen::SparseMatrix<complex_type> sparse_mat_type;
   typedef Eigen::Triplet<complex_type, sparse_mat_type::Index> triplet_type;
@@ -24,7 +25,6 @@ public:
   void print_full_AB(std::ostream &os) const;
 
 public:
-  static void vec_to_H(el_mat_type &, element_vec_type &);
   static void print_H(const Conf &conf, element_vec_type &, std::ostream &);
 
 private:

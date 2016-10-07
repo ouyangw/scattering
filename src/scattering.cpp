@@ -17,8 +17,18 @@ using std::sin;
 using std::cos;
 using std::ostream;
 
+
 namespace scattering_1d
 {
+
+// local classes and functions
+namespace
+{
+  void vec_to_H(Scattering::el_mat_type &, Scattering::element_vec_type &);
+} // anonymous namespace
+
+////////////////////////////////////////////////////////////////////////////////
+
 Scattering::Scattering(const Conf &conf)
     : m_conf(conf)
     , m_totalE(0)
@@ -365,18 +375,6 @@ void Scattering::print_full_AB(ostream &os) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Scattering::vec_to_H(el_mat_type &H, element_vec_type &vec)
-{
-  H.setZero();
-  for (element_vec_type::iterator vme_iter(vec.begin()); vme_iter != vec.end();
-       ++vme_iter) {
-    H(vme_iter->i, vme_iter->j) = vme_iter->value;
-    H(vme_iter->j, vme_iter->i) = vme_iter->value;
-  }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 void Scattering::print_H(const Conf &conf, element_vec_type &vec,
                          ostream &os)
 {
@@ -384,6 +382,23 @@ void Scattering::print_H(const Conf &conf, element_vec_type &vec,
   vec_to_H(H, vec);
   os << H << '\n';
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// anonymous namespace classes and functions implementation
+////////////////////////////////////////////////////////////////////////////////
+
+namespace
+{
+void vec_to_H(Scattering::el_mat_type &H, Scattering::element_vec_type &vec)
+{
+  H.setZero();
+  for (Scattering::element_vec_type::iterator vme_iter(vec.begin());
+       vme_iter != vec.end(); ++vme_iter) {
+    H(vme_iter->i, vme_iter->j) = vme_iter->value;
+    H(vme_iter->j, vme_iter->i) = vme_iter->value;
+  }
+}
+} // anonymous namespace
 
 ////////////////////////////////////////////////////////////////////////////////
 
