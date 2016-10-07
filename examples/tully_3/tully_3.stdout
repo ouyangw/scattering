@@ -1,0 +1,18 @@
+Scattering calculation for 1D Hamiltonian (v1.0.0 MKL)
+# ********** Scattering Conf Echo **********
+# num states: 2
+# incoming state: 0
+# num xgrid: 3001
+# x range: [-15, 15]
+# kinetic energy: 0.11025
+# nuclear mass: 2000
+# Hamiltonian builder: Tully #3. [J. Chem. Phys. 93, 1061 (1990)]
+# **************** End Echo ****************
+Reflection data:
+         -0.0006         0.203576         0.345766         0.160998         0.160998
+          0.0006         0.479617        -0.107502         0.241589         0.240271
+
+Transmission data:
+       -0.200001        -0.184111        -0.568789         0.357417         0.598994
+        0.200001                0                0                0                0
+Total propability: 1.00026

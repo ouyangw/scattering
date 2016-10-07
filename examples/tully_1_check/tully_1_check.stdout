@@ -1,0 +1,30 @@
+Scattering calculation for 1D Hamiltonian (v1.0.0 MKL)
+# ********** Scattering Conf Echo **********
+# num states: 2
+# incoming state: 0
+# num xgrid: 11
+# x range: [-10, 10]
+# kinetic energy: 0.11025
+# nuclear mass: 2000
+# Hamiltonian builder: Tully #1. [J. Chem. Phys. 93, 1061 (1990)]
+# **************** End Echo ****************
+checking good builder:
+0.00550671 0.003894 
+0 -0.00550671 
+
+# ********** Scattering Conf Echo **********
+# num states: 2
+# incoming state: 0
+# num xgrid: 11
+# x range: [-10, 10]
+# kinetic energy: 0.11025
+# nuclear mass: 2000
+# Hamiltonian builder: Tully #1. [J. Chem. Phys. 93, 1061 (1990)] (wrong implementation)
+# **************** End Echo ****************
+checking bad builder:
+       0        0   0.00550671
+       1        1  -0.00550671
+       0        1     0.003894
+       1        0     0.003894
+Expected Exception: Error (check_electronic_hamiltonian_builder): row index is larger than column index.
+
