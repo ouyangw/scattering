@@ -8,6 +8,9 @@ namespace scattering_1d
 class Scattering
 {
 public:
+  typedef std::vector<MatrixElement> element_vec_type;
+
+public:
   Scattering(const Conf &conf);
   void cal_adiab_states();
   void setup_channels();
@@ -16,8 +19,7 @@ public:
   void print_full_AB(std::ostream &os) const;
 
 public:
-  static void print_H(const Conf &, std::vector<MatrixElement> &,
-                      std::ostream &);
+  static void print_H(const Conf &, element_vec_type &, std::ostream &);
 
 private:
   const Conf &m_conf;

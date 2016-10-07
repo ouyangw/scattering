@@ -38,7 +38,7 @@ struct CSR3Adaptor {
 
 void coor_to_csr3(vector<Coor> &, CSR3Adaptor &);
 
-void vec_to_H(vector<double> &, size_t, vector<MatrixElement> &);
+void vec_to_H(vector<double> &, size_t, Scattering::element_vec_type &);
 } // anonymous namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,7 +83,7 @@ void Scattering::cal_adiab_states()
   vector<double> work(1), H(H_size), vals(m_conf.num_states);
   char charv('V'), charu('U');
   int matrix_dim(static_cast<int>(m_conf.num_states));
-  vector<MatrixElement> mat_elements;
+  element_vec_type mat_elements;
 
   // query optimal work array size for diagonalization
   m_conf.eh_builder_ptr->build_H(mat_elements, m_x[0]);
@@ -459,7 +459,7 @@ void Scattering::print_full_AB(std::ostream &os) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Scattering::print_H(const Conf &conf, vector<MatrixElement> &elements,
+void Scattering::print_H(const Conf &conf, element_vec_type &elements,
                          std::ostream &os)
 {
   const size_t H_size(conf.num_states * conf.num_states);
@@ -541,11 +541,12 @@ bool operator<(const Coor &lhs, const Coor &rhs)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void vec_to_H(vector<double> &H, size_t H_dim, vector<MatrixElement> &elements)
+void vec_to_H(vector<double> &H, size_t H_dim,
+              Scattering::element_vec_type &elements)
 {
   for (vector<double>::iterator it(H.begin()); it != H.end(); ++it)
     *it = 0.0;
-  for (vector<MatrixElement>::iterator it(elements.begin());
+  for (Scattering::element_vec_type::iterator it(elements.begin());
        it != elements.end(); ++it)
     H[it->j * H_dim + it->i] = it->value;
 }
