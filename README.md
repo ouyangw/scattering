@@ -133,7 +133,8 @@ your system.
 The `-Dval=value` is to change the value of the variables. Most variables can
 be changed after the first time running `cmake` and the way to use `cmake` is
 the same. In another word, user can run `cmake` multiple times to change the
-configuration variables.
+configuration variables. That being said, user can also provide multiple
+`-Dval=value` options in one command line to change different variables.
 
 One very important variable that must be set in the first time run and cannot be
 change in later run of `cmake` is the compiler option: `CMAKE_CXX_COMPILER`.
