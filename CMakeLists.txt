@@ -6,14 +6,17 @@ set (CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/)
 
 include (BasicSetup)
 
-set (${PROJNAME}_MKL_LINKFLAG "-L${MKLROOT}/lib/intel64"
+set (${PROJNAME}_MKL_LINKFLAG "-L$ENV{MKLROOT}/lib/intel64"
   CACHE STRING "link flag for Intel MKL")
 set (${PROJNAME}_MKL_LIBS "mkl_intel_lp64;mkl_core;mkl_sequential;pthread;m;dl"
   CACHE STRING "Intel MKL libraries")
+set (${PROJNAME}_MKL_INCLUDE "$ENV{MKLROOT}/include"
+  CACHE PATH "Intel MKL header location")
 
 add_library (scattering SHARED ./src/scattering_1d.cpp
                                   ./src/scattering.cpp)
-target_include_directories (scattering PRIVATE ./include)
+target_include_directories (scattering PRIVATE ./include
+  PRIVATE ${${PROJNAME}_MKL_INCLUDE})
 set_target_properties (scattering PROPERTIES
   LINK_FLAGS ${${PROJNAME}_MKL_LINKFLAG}
   CXX_STANDARD ${${PROJNAME}_CXXSTANDARD}
