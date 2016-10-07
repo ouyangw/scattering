@@ -52,7 +52,13 @@ void compute(const Conf &conf, std::vector<Data> &reflection,
 // B is in the last column
 void print_full_AB(const Conf &conf, std::ostream &os);
 
-// TODO: check electronic matrix builder follow the rules
+// check if electronic matrix builder follows the rules
+//   1. index is not beyond num_sates
+//   2. row index is no larger than column index (upper trianglar)
+// write the electronic hamiltonian to the stream
+// if there is an error, the element vector is written to stream
+void check_electronic_hamiltonian_builder(const Conf &conf, double x,
+                                          std::ostream &os);
 
 // struct of electronic matrix element
 // the (i+1)th row and (j+1)th column of the matrix has a value of "value"

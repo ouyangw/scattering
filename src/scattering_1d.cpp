@@ -2,8 +2,15 @@
 #include "scattering.hpp"
 #include "exception.hpp"
 #include <sstream>
+#include <vector>
+#include <iomanip>
 
 using utility::Exception;
+using std::vector;
+using std::stringstream;
+using std::string;
+using std::ostream;
+using std::setw;
 
 namespace
 {
@@ -30,7 +37,7 @@ void verify_conf(const scattering_1d::Conf &conf)
 namespace scattering_1d
 {
 __attribute__((visibility("default")))
-std::string get_description()
+string get_description()
 {
   return "Scattering calculation for 1D Hamiltonian (v2.0.0)";
 }
@@ -51,9 +58,9 @@ Conf::Conf()
 ////////////////////////////////////////////////////////////////////////////////
 
 __attribute__((visibility("default")))
-std::string Conf::echo(const std::string &prefix) const
+string Conf::echo(const string &prefix) const
 {
-  std::stringstream ss;
+  stringstream ss;
   ss << prefix
      << " ********** Scattering Conf Echo **********\n"
      << prefix << ' '
@@ -78,8 +85,8 @@ std::string Conf::echo(const std::string &prefix) const
 ////////////////////////////////////////////////////////////////////////////////
 
 __attribute__((visibility("default")))
-void compute(const Conf &conf, std::vector<Data> &reflection,
-             std::vector<Data> &transmission)
+void compute(const Conf &conf, vector<Data> &reflection,
+             vector<Data> &transmission)
 {
   verify_conf(conf);
   Scattering comp(conf);
@@ -92,7 +99,7 @@ void compute(const Conf &conf, std::vector<Data> &reflection,
 ////////////////////////////////////////////////////////////////////////////////
 
 __attribute__((visibility("default")))
-void print_full_AB(const Conf &conf, std::ostream &os)
+void print_full_AB(const Conf &conf, ostream &os)
 {
   verify_conf(conf);
   Scattering comp(conf);
@@ -100,6 +107,41 @@ void print_full_AB(const Conf &conf, std::ostream &os)
   comp.setup_channels();
   comp.setup_equation();
   comp.print_full_AB(os);
+}
+////////////////////////////////////////////////////////////////////////////////
+
+__attribute__((visibility("default")))
+void check_electronic_hamiltonian_builder(const Conf &conf, double x,
+                                          ostream &os)
+{
+  typedef vector<MatrixElement> vec_type;
+  typedef vec_type::iterator iter_type;
+  verify_conf(conf);
+  bool is_error(false);
+  stringstream error_ss;
+  vec_type mat_elements;
+  conf.eh_builder_ptr->build_H(mat_elements, x);
+  for (iter_type it(mat_elements.begin()); it != mat_elements.end(); ++ it) {
+    if (it->i >= conf.num_states) {
+      error_ss << "Error (check_electronic_hamiltonian_builder): row index is "
+                  "not smaller than num_states.\n";
+      is_error = true;
+      break;
+    } else if (it->i > it->j) {
+      error_ss << "Error (check_electronic_hamiltonian_builder): row index is "
+                  "larger than column index.\n";
+      is_error = true;
+      break;
+    }
+  }
+  if (is_error) {
+    for (iter_type it(mat_elements.begin()); it != mat_elements.end(); ++it)
+      os << setw(8) << it->i << ' '
+         << setw(8) << it->j << ' '
+         << setw(12) << it->value << '\n';
+    throw Exception(error_ss.str());
+  }
+  Scattering::print_H(conf, mat_elements, os);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

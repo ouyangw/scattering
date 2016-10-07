@@ -15,6 +15,10 @@ public:
   void solve_equation(std::vector<Data> &refl, std::vector<Data> &tran);
   void print_full_AB(std::ostream &os) const;
 
+public:
+  static void print_H(const Conf &, std::vector<MatrixElement> &,
+                      std::ostream &);
+
 private:
   const Conf &m_conf;
   double m_totalE;

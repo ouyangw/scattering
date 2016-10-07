@@ -458,6 +458,21 @@ void Scattering::print_full_AB(std::ostream &os) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+void Scattering::print_H(const Conf &conf, vector<MatrixElement> &elements,
+                         std::ostream &os)
+{
+  const size_t H_size(conf.num_states * conf.num_states);
+  vector<double> H(H_size);
+  vec_to_H(H, conf.num_states, elements);
+  for (size_t row(0); row < conf.num_states; ++row) {
+    for (size_t col(0); col < conf.num_states; ++col)
+      os << H[col * conf.num_states + row] << ' ';
+    os << '\n';
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // implementations of the private classes and functions
 ////////////////////////////////////////////////////////////////////////////////
 
