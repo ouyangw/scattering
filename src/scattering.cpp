@@ -15,6 +15,9 @@ using std::min;
 using std::sin;
 using std::cos;
 
+
+namespace scattering_1d
+{
 // private classes and functions
 namespace
 {
@@ -38,8 +41,8 @@ void coor_to_csr3(vector<Coor> &, CSR3Adaptor &);
 void vec_to_H(vector<double> &, size_t, vector<MatrixElement> &);
 } // anonymous namespace
 
-namespace scattering_1d
-{
+////////////////////////////////////////////////////////////////////////////////
+
 Scattering::Scattering(const Conf &conf)
     : m_conf(conf)
     , m_totalE(0)
@@ -455,10 +458,9 @@ void Scattering::print_full_AB(std::ostream &os) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-} // namespace scattering_1d
-
 // implementations of the private classes and functions
+////////////////////////////////////////////////////////////////////////////////
+
 namespace
 {
 Coor::Coor()
@@ -533,3 +535,5 @@ void vec_to_H(vector<double> &H, size_t H_dim, vector<MatrixElement> &elements)
     H[it->j * H_dim + it->i] = it->value;
 }
 } // anonymous namespace
+
+} // namespace scattering_1d
