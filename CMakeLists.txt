@@ -13,7 +13,7 @@ set (SRC_FILES ./src/scattering_1d.cpp ./src/scattering.cpp)
 
 add_library (scattering SHARED ${SRC_FILES})
 target_include_directories (scattering PRIVATE ./include)
-set_target_properties (scattering PROPERTIES 
+set_target_properties (scattering PROPERTIES
   CXX_STANDARD ${${PROJNAME}_CXXSTANDARD}
   CXX_STANDARD_REQUIRED TRUE
   CXX_VISIBILITY_PRESET hidden
@@ -25,7 +25,7 @@ target_include_directories (scattering PUBLIC ${${PROJNAME}_EIGEN_INCLUDE})
 
 add_library (scattering_static STATIC ${SRC_FILES})
 target_include_directories (scattering_static PRIVATE ./include)
-set_target_properties (scattering_static PROPERTIES 
+set_target_properties (scattering_static PROPERTIES
   CXX_STANDARD ${${PROJNAME}_CXXSTANDARD}
   CXX_STANDARD_REQUIRED TRUE
   CXX_VISIBILITY_PRESET hidden

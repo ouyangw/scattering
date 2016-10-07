@@ -161,7 +161,7 @@ void Scattering::setup_equation()
 
   // position index is slow, electronic state index is fast
   // store in natural format in tmps then convert to CSR3
-  
+
   // setup A
   // diagonal elements
   for (size_t ix(0); ix < m_conf.num_xgrid; ++ix) {

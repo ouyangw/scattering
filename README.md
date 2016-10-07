@@ -1,7 +1,7 @@
 # 1D Scattering Calculation Library (v1 Eigen)
 
 This is a implementation of quantum scattering calculation in a one dimension
-system. The algorithm can be found in the Appendix of the paper 
+system. The algorithm can be found in the Appendix of the paper
 [[J. Chem. Phys. **142**, 084110 (2015)](http://dx.doi.org/10.1063/1.4908032)].
 Please cite the paper if you use the code.
 
@@ -206,7 +206,7 @@ users to keep track of the version of the library used in the calculation.
 
 ### `void compute(const Conf &conf, std::vector<Data> &reflection, std::vector<Data> &transmission)`
 
-This is the function that does the scattering calculation. 
+This is the function that does the scattering calculation.
 
 Variable | Input/Output | Usage
 --- | --- | ---

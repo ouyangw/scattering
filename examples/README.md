@@ -4,7 +4,7 @@ This directory contains all the examples for the library.
 
 ## Contents
 
-The Tully's model problems are published in his paper 
+The Tully's model problems are published in his paper
 [[J. Chem. Phys. **93**, 1061 (1990)](http://dx.doi.org/10.1063/1.459170)].
 
 Directory | Content | Time\*
@@ -18,7 +18,7 @@ Directory | Content | Time\*
 `tully_3` | Tully #3 with one incoming momentum | 0.03s
 `tully_3_range` | Tully #3 with a range of incoming momenta. Reproduce the result in the paper. Results in file `tully_3_range.dat`. | 50s
 
-\**The time is measured on a Mac mini (Mid 2011) with 2.5 GHz Intel Core i5 
+\**The time is measured on a Mac mini (Mid 2011) with 2.5 GHz Intel Core i5
 using `time` commandline utility and the `real` time in the result.*
 
 The data from a range of incoming momenta are written into file with 7 columns:
