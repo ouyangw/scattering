@@ -27,6 +27,11 @@ The data from a range of incoming momenta are written into file with 7 columns:
 5. transmission coefficient on lower state
 6. transmission coefficient on upper state
 
+The matrix A and vector B has complex numbers which are printed as a pair of
+real value and imaginary value, so each complex number occupies two columns. The
+matrix and vector are written such that B is the last two columns of the total
+output matrix.
+
 The generated result files are kept in the respective directories, and
 the standard output of each program is kept in the file with an extension of
 `.stdout`.

@@ -22,7 +22,7 @@ legitimate copy of the MKL library.
 - CMake([https://cmake.org/](https://cmake.org/)) configuration files are
   provided for easy building in different environments.
 - Different versions using different linear algebra libraries (in other
-  branches) (MKL, [Eigen](tree/dev_eigen), [LAPACK](tree/dev_lapack)).
+  branches) (MKL, [Eigen](tree/eigen)).
 - The Intel MKL PARDISO solver can handle sparse matrix, which makes the last
   step calculation very fast.<sup>1</sup>
 - The Intel MKL library comes with the threaded version, which takes advantage
@@ -108,11 +108,12 @@ system using CMake. It is optional and safe to skip. The full documentation of
 To configure the build system with more control, the following command can be
 used:
 ```bash
-cmake [-L] [-G <generator-name>] [-D var=value] <path-to-source>
+cmake [-L[H]] [-G <generator-name>] [-D var=value] <path-to-source>
 ```
 The `-L` option will show all the cache variables which users can change on
 their needs. This option only shows the variables but not modifies them. It is
-just nicer to see the available options.
+just nicer to see the available options. The optional `H` toggle will display
+short description about each variable.
 
 The `-G` option sets the build system you would like to use. For instance,
 "Unix Makefiles" for Linux and Unix system. The available generators can be
@@ -126,7 +127,8 @@ your system.
 The `-Dval=value` is to change the value of the variables. Most variables can
 be changed after the first time running `cmake` and the way to use `cmake` is
 the same. In another word, user can run `cmake` multiple times to change the
-configuration variables.
+configuration variables. That being said, user can provide multiple
+`-Dval=value` options to set different variables in one command line.
 
 One very important variable that must be set in the first time run and cannot be
 change in later run of `cmake` is the compiler option: `CMAKE_CXX_COMPILER`.
