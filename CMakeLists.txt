@@ -22,9 +22,13 @@ set_target_properties (scattering PROPERTIES
   CXX_STANDARD ${${PROJNAME}_CXXSTANDARD}
   CXX_STANDARD_REQUIRED TRUE
   CXX_VISIBILITY_PRESET hidden
+  VERSION 1.0.0
+  SOVERSION 1.0
   )
 target_compile_options (scattering PUBLIC ${${PROJNAME}_WARNING_FLAG})
 target_link_libraries (scattering ${${PROJNAME}_MKL_LIBS})
 
+install (TARGETS scattering LIBRARY DESTINATION lib/)
+install (FILES ./include/scattering_1d.hpp DESTINATION include/)
 
 add_subdirectory (examples EXCLUDE_FROM_ALL)
