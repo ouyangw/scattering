@@ -21,7 +21,7 @@ struct Conf {
   double kinetic_energy; // incoming nuclear kinetic energy
   double mass; // nuclear mass
   // pointer to hamiltomian builder
-  ElectronicHamiltonianBuilder *eh_builder_ptr; 
+  ElectronicHamiltonianBuilder *eh_builder_ptr;
   Conf();
   // return a string describing the configuration
   // prefix will be added in the beginning of every line

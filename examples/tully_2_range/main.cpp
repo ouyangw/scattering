@@ -36,7 +36,7 @@ int main()
     const double total_prob(refl[0].normalized_norm + refl[1].normalized_norm +
                             tran[0].normalized_norm + tran[1].normalized_norm);
     outfile << setw(12) << conf.kinetic_energy << ' '
-            << setw(12) 
+            << setw(12)
             << std::sqrt(2.0 * conf.mass * conf.kinetic_energy) << ' '
             << setw(12) << refl[0].normalized_norm << ' '
             << setw(12) << refl[1].normalized_norm << ' '
