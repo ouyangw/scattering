@@ -9,7 +9,6 @@ using std::setw;
 
 int main()
 {
-  typedef std::vector<scattering_1d::Data>::iterator iter_type;
   std::cout << scattering_1d::get_description() << '\n';
   scattering_1d::Tully_3 tully3(6e-4, 0.1, 0.9);
   scattering_1d::Conf conf;
