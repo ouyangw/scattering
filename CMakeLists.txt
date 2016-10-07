@@ -32,3 +32,27 @@ install (TARGETS scattering LIBRARY DESTINATION lib/)
 install (FILES ./include/scattering_1d.hpp DESTINATION include/)
 
 add_subdirectory (examples EXCLUDE_FROM_ALL)
+
+# check MKL header
+include (CheckCXXSourceCompiles)
+set (CMAKE_REQUIRED_INCLUDES ${${PROJNAME}_MKL_INCLUDE})
+unset (IS_MKL_H_AVAILABLE CACHE)
+CHECK_CXX_SOURCE_COMPILES ("#include <mkl.h>\nint main() { return 0; }"
+  IS_MKL_H_AVAILABLE)
+if (NOT IS_MKL_H_AVAILABLE)
+  message (WARNING "mkl.h is not found. "
+    "Please change ${PROJNAME}_MKL_INCLUDE to point to the header directory.")
+endif ()
+
+# check PARDISO
+if (IS_MKL_H_AVAILABLE)
+  include (CheckCXXSymbolExists)
+  set (CMAKE_REQUIRED_LIBRARIES ${${PROJNAME}_MKL_LIBS})
+  set (CMAKE_REQUIRED_FLAGS ${${PROJNAME}_MKL_LINKFLAG})
+  unset (IS_PARDISO_AVAILABLE CACHE)
+  CHECK_CXX_SYMBOL_EXISTS ("pardiso" "mkl.h" IS_PARDISO_AVAILABLE)
+  if (NOT IS_PARDISO_AVAILABLE)
+    message (WARNING "PARDISO does not seem to be available. "
+      "Your MKL might be too old.")
+  endif ()
+endif ()
