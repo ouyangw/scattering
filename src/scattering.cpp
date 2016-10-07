@@ -14,6 +14,7 @@ using std::sqrt;
 using std::min;
 using std::sin;
 using std::cos;
+using std::ostream;
 
 
 namespace scattering_1d
@@ -434,10 +435,10 @@ void Scattering::solve_equation(vector<Data> &refl, vector<Data> &tran)
 ////////////////////////////////////////////////////////////////////////////////
 
 // one-based indexing!
-void Scattering::print_full_AB(std::ostream &os) const
+void Scattering::print_full_AB(ostream &os) const
 {
-  typedef std::vector<int>::const_iterator int_iter_type;
-  typedef std::vector<Complex>::const_iterator complex_iter_type;
+  typedef vector<int>::const_iterator int_iter_type;
+  typedef vector<Complex>::const_iterator complex_iter_type;
   complex_iter_type B_iter(m_B.begin());
   Complex zero;
   const int dim(*std::max_element(m_jA.begin(), m_jA.end()));
@@ -460,7 +461,7 @@ void Scattering::print_full_AB(std::ostream &os) const
 ////////////////////////////////////////////////////////////////////////////////
 
 void Scattering::print_H(const Conf &conf, element_vec_type &elements,
-                         std::ostream &os)
+                         ostream &os)
 {
   const size_t H_size(conf.num_states * conf.num_states);
   vector<double> H(H_size);
@@ -498,11 +499,11 @@ CSR3Adaptor::CSR3Adaptor(vector<Complex> &val, vector<int> &col,
 ////////////////////////////////////////////////////////////////////////////////
 
 // one-based indexing!
-void coor_to_csr3(std::vector<Coor> &coor, CSR3Adaptor &csr3)
+void coor_to_csr3(vector<Coor> &coor, CSR3Adaptor &csr3)
 {
-  typedef std::vector<Complex>::iterator complex_iter_type;
-  typedef std::vector<Coor>::iterator coor_iter_type;
-  typedef std::vector<int>::iterator int_iter_type;
+  typedef vector<Complex>::iterator complex_iter_type;
+  typedef vector<Coor>::iterator coor_iter_type;
+  typedef vector<int>::iterator int_iter_type;
   std::sort(coor.begin(), coor.end());
   csr3.values.resize(coor.size());
   csr3.columns.resize(coor.size());
