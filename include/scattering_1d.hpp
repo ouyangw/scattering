@@ -1,6 +1,5 @@
 #ifndef SCATTERING_1D_HPP
 #define SCATTERING_1D_HPP
-#include "matrix_adaptor.hpp"
 #include <string>
 #include <vector>
 #include <iosfwd>
@@ -53,13 +52,35 @@ void compute(const Conf &conf, std::vector<Data> &reflection,
 // B is in the last column
 void print_full_AB(const Conf &conf, std::ostream &os);
 
+// TODO: check electronic matrix builder follow the rules
+
+// struct of electronic matrix element
+// the (i+1)th row and (j+1)th column of the matrix has a value of "value"
+// i and j are zero-based index for row and column
+struct MatrixElement {
+  std::size_t i, j;
+  double value;
+  MatrixElement(std::size_t i0, std::size_t j0, double value0)
+      : i(i0)
+      , j(j0)
+      , value(value0)
+  {
+  }
+  MatrixElement()
+      : i(0)
+      , j(0)
+      , value(0)
+  {
+  }
+};
+
 // Base class for electronic Hamiltonian builder
 class ElectronicHamiltonianBuilder
 {
 public:
   virtual ~ElectronicHamiltonianBuilder();
   // build the upper triangular parts of Hamiltonian
-  virtual void build_H(MatrixAdaptor &H_uptri, double x) = 0;
+  virtual void build_H(std::vector<MatrixElement> &H_uptri, double x) = 0;
   // short description of the Hamiltonian
   virtual std::string get_description() const = 0;
 };

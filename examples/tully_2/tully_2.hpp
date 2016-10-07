@@ -16,16 +16,16 @@ public:
   {
   }
 
-  void build_H(MatrixAdaptor &H_uptri, double x)
+  void build_H(std::vector<MatrixElement> &H_uptri, double x)
   {
-    H_uptri.assign(0, 0, 0);
-    H_uptri.assign(1, 1, -m_A * std::exp(-m_B * x * x) + m_E);
-    H_uptri.assign(0, 1, m_C * std::exp(-m_D * x * x));
+    H_uptri.push_back(MatrixElement(0, 0, 0));
+    H_uptri.push_back(MatrixElement(1, 1, -m_A * std::exp(-m_B * x * x) + m_E));
+    H_uptri.push_back(MatrixElement(0, 1, m_C * std::exp(-m_D * x * x)));
   }
 
   std::string get_description() const
   {
-    return "Tully #2.";
+    return "Tully #2. [J. Chem. Phys. 93, 1061 (1990)]";
   }
 
 private:

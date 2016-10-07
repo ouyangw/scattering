@@ -35,6 +35,8 @@ struct CSR3Adaptor {
 };
 
 void coor_to_csr3(vector<Coor> &, CSR3Adaptor &);
+
+void vec_to_H(vector<double> &, size_t, vector<MatrixElement> &);
 } // anonymous namespace
 
 namespace scattering_1d
@@ -79,10 +81,11 @@ void Scattering::cal_adiab_states()
   vector<double> work(1), H(H_size), vals(m_conf.num_states);
   char charv('V'), charu('U');
   int matrix_dim(static_cast<int>(m_conf.num_states));
-  MatrixAdaptor mat(H, m_conf.num_states);
+  vector<MatrixElement> mat_elements;
 
   // query optimal work array size for diagonalization
-  m_conf.eh_builder_ptr->build_H(mat, m_x[0]);
+  m_conf.eh_builder_ptr->build_H(mat_elements, m_x[0]);
+  vec_to_H(H, m_conf.num_states, mat_elements);
   dsyev_(&charv, &charu, &matrix_dim, &H[0], &matrix_dim, &vals[0], &work[0],
          &lwork, &info);
   if (info) {
@@ -95,8 +98,9 @@ void Scattering::cal_adiab_states()
 
   // calculate adiabatic states for each x
   for (size_t ix(0); ix < m_conf.num_xgrid; ++ix) {
-    H.assign(H_size, 0);
-    m_conf.eh_builder_ptr->build_H(mat, m_x[ix]);
+    mat_elements.clear();
+    m_conf.eh_builder_ptr->build_H(mat_elements, m_x[ix]);
+    vec_to_H(H, m_conf.num_states, mat_elements);
     dsyev_(&charv, &charu, &matrix_dim, &H[0], &matrix_dim, &vals[0], &work[0],
            &lwork, &info);
     if (info) {
@@ -177,7 +181,7 @@ void Scattering::setup_equation()
 
   // position index is slow, electronic state index is fast
   // store in natural format in tmps then convert to CSR3
-  
+
   // setup A
   // diagonal elements
   for (size_t ix(0); ix < m_conf.num_xgrid; ++ix) {
@@ -518,5 +522,16 @@ bool operator<(const Coor &lhs, const Coor &rhs)
       return false;
   } else
     return false;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void vec_to_H(vector<double> &H, size_t H_dim, vector<MatrixElement> &elements)
+{
+  for (vector<double>::iterator it(H.begin()); it != H.end(); ++it)
+    *it = 0.0;
+  for (vector<MatrixElement>::iterator it(elements.begin());
+       it != elements.end(); ++it)
+    H[it->j * H_dim + it->i] = it->value;
 }
 } // anonymous namespace
