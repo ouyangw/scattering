@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <ostream>
 #include <mkl.h>
-#include <iostream>
 
 using std::vector;
 using utility::Exception;
@@ -439,7 +438,6 @@ void Scattering::print_full_AB(std::ostream &os) const
   complex_iter_type B_iter(m_B.begin());
   Complex zero;
   const int dim(*std::max_element(m_jA.begin(), m_jA.end()));
-  std::cout << "max col: " << dim << '\n';
   size_t idx(0);
   for (int_iter_type rowiter(m_iA.begin() + 1); rowiter != m_iA.end();
        ++rowiter, ++B_iter) {
