@@ -13,7 +13,7 @@ legitimate copy of the MKL library.
 ### Features:
 
 - Modular design makes the code easy to use and modify.
-- Potential energy surface independent and the API is consistent across all
+- Electronic Hamitlonian independent and the API is consistent across all
   versions of the codes.
 - Library-only so users are free to write their own caller function (the
   simplest case is the `main()` function) which deals with input and output in
@@ -23,8 +23,8 @@ legitimate copy of the MKL library.
   provided for easy building in different environments.
 - Different versions using different linear algebra libraries (in other
   branches) (MKL, [Eigen](tree/eigen)).
-- The Intel MKL PARDISO solver can handle sparse matrix, which makes the last
-  step calculation very fast.<sup>1</sup>
+- The Intel MKL PARDISO solver can handle sparse matrix, which makes solving
+  the linear systems very fast.<sup>1</sup>
 - The Intel MKL library comes with the threaded version, which takes advantage
   of parallel hardware easily (for both diagonalization and linear
   solver).<sup>1</sup>
@@ -39,8 +39,7 @@ legitimate copy of the MKL library.
   initial condition and the results are in adiabatic basis)
 - The diagonalization is done in dense matrix, which can potentially be very
   slow if the electronic Hamiltonian has many dimensions. One possible way to
-  speed up the calculation is to use the threaded MKL library. Another solution
-  might be to parallelize the diagonalizations in different configurations.
+  speed up the calculation is to use the threaded MKL library.
 - The author does not have access to newer version of the MKL library which
   contains Parallel Direct Sparse Solver that uses MPI parallelization. So in
   addition to the possible performance issue, memory consumption might be
@@ -192,7 +191,7 @@ The `examples/` directory contains several examples showing how to use the
 library. To read more about the examples and how to use the examples, please
 refer to the [README](examples/) in `examples/`.
 
-## Public Interface
+## Public Interfaces
 
 All the codes of the library is in the namespace `scattering_1d`.
 
