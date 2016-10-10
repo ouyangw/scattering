@@ -27,7 +27,7 @@ copy the folder named `Eigen` but not just the contents in the folder)
   provided for easy building in different environments.
 - Different versions using different linear algebra libraries (in other
   branches) (Eigen, [MKL](tree/mkl/)).
-- Eigen's sparse linear solver makes the last step calculation very
+- Eigen's sparse linear solver makes solving the linear systems very
   fast.<sup>1</sup>
 - The Eigen library claims to be faster than any free BLAS and has
   comparable speed to the best BLAS, namely Intel MKL and GOTO. (see Eigen's
@@ -43,9 +43,7 @@ copy the folder named `Eigen` but not just the contents in the folder)
 - Calculation is done in adiabatic basis (users must be careful that the
   initial condition and the results are in adiabatic basis).
 - The diagonalization is done in dense matrix, which can potentially be very
-  slow if the electronic Hamiltonian has many dimensions. A possible way to
-  speed up in such case is to parallelize the diagonalizations in different
-  configurations.
+  slow if the electronic Hamiltonian has many dimensions.
 - The Eigen library is not parallelized for most of its algorithms so it
   doesn't by itself take advantage of parallel hardware (see Eigen's
   [FAQ](http://eigen.tuxfamily.org/index.php?title=FAQ#How_does_Eigen_compare_to_BLAS.2FLAPACK.3F)).
@@ -187,7 +185,7 @@ The `examples/` directory contains several examples showing how to use the
 library. To read more about the examples and how to use the examples, please
 refer to the [README](examples/) in `examples/`.
 
-## Public Interface
+## Public Interfaces
 
 All the codes of the library is in the namespace `scattering_1d`.
 
