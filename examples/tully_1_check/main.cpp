@@ -1,5 +1,6 @@
 #include "../tully_1/tully_1.hpp"
 #include "tully_1_wrong.hpp"
+#include "tully_1_wrong2.hpp"
 #include "scattering_1d.hpp"
 #include <iostream>
 #include <exception>
@@ -36,9 +37,23 @@ int main()
   try {
     scattering_1d::check_electronic_hamiltonian_builder(conf, 0.5, std::cout);
   } catch (const std::exception &e) {
-    std::cerr << "Expected Exception: " << e.what() << '\n';
+    std::cerr << "Expected exception for building full matrix:\n"
+              << e.what() << '\n';
+  }
+
+  scattering_1d::Tully_1_Wrong2 tully1wrong2(0.01, 1.6, 0.005, 1.0);
+  conf.eh_builder_ptr = &tully1wrong2;
+  std::cout << conf.echo();
+
+  std::cout << "checking bad builder:\n";
+  try {
+    scattering_1d::check_electronic_hamiltonian_builder(conf, 0.5, std::cout);
+  } catch (const std::exception &e) {
+    std::cerr << "Expected exception of overflow index:\n"
+              << e.what() << '\n';
     return 2;
   }
+
 
   return 0;
 }
