@@ -1,7 +1,7 @@
 #include "scattering.hpp"
-#include "lapack.hpp"
 #include "exception.hpp"
 #include <Eigen/SparseLU>
+#include <Eigen/Eigenvalues>
 #include <sstream>
 #include <cmath>
 #include <algorithm>
@@ -53,42 +53,37 @@ Scattering::Scattering(const Conf &conf)
 
 void Scattering::cal_adiab_states()
 {
+  typedef Eigen::SelfAdjointEigenSolver<MatrixAdaptor::el_mat_type>
+      eigen_solver_type;
+  typedef eigen_solver_type::RealVectorType eval_type;
+  typedef eigen_solver_type::EigenvectorsType evec_type;
   const size_t H_size(m_conf.num_states * m_conf.num_states);
-  int info(0), lwork(-1);
-  vector<double> work(1), H(H_size), vals(m_conf.num_states);
-  char charv('V'), charu('U');
-  int matrix_dim(static_cast<int>(m_conf.num_states));
-  MatrixAdaptor mat(H, m_conf.num_states);
-
-  // query optimal work array size for diagonalization
-  m_conf.eh_builder_ptr->build_H(mat, m_x[0]);
-  dsyev_(&charv, &charu, &matrix_dim, &H[0], &matrix_dim, &vals[0], &work[0],
-         &lwork, &info);
-  if (info) {
-    stringstream error_ss;
-    error_ss << "Error: dsyev work size query info: " << info << '\n';
-    throw Exception(error_ss.str());
-  }
-  lwork = static_cast<int>(work[0]);
-  work.resize(lwork);
+  MatrixAdaptor::el_mat_type H(m_conf.num_states, m_conf.num_states);
+  MatrixAdaptor mat(H);
+  eigen_solver_type solver;
+  eval_type vals(m_conf.num_states);
+  evec_type vecs(m_conf.num_states, m_conf.num_states);
 
   // calculate adiabatic states for each x
   for (size_t ix(0); ix < m_conf.num_xgrid; ++ix) {
-    H.assign(H_size, 0);
+    H.setZero();
     m_conf.eh_builder_ptr->build_H(mat, m_x[ix]);
-    dsyev_(&charv, &charu, &matrix_dim, &H[0], &matrix_dim, &vals[0], &work[0],
-           &lwork, &info);
-    if (info) {
+    solver.compute(H);
+    if (solver.info() != Eigen::Success) {
       stringstream error_ss;
-      error_ss << "Error: diagonalization error info: " << info << '\n';
+      error_ss << "Error: SelfAdjointEigenSolver error: " << solver.info()
+               << '\n';
       throw Exception(error_ss.str());
     }
+    vals = solver.eigenvalues();
+    vecs = solver.eigenvectors();
+
     // store the adiabitc state eigensystem
     for (size_t is(0); is < m_conf.num_states; ++is) {
-      m_all_eigenvals[ix * m_conf.num_states + is] = vals[is];
+      m_all_eigenvals[ix * m_conf.num_states + is] = vals(is);
       for (size_t js(0); js < m_conf.num_states; ++js)
         m_all_eigenvecs[ix * H_size + is * m_conf.num_states + js] =
-            H[is * m_conf.num_states + js];
+            vecs(js, is);
     }
   }
 
