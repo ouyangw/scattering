@@ -58,7 +58,7 @@ Conf::Conf()
 ////////////////////////////////////////////////////////////////////////////////
 
 __attribute__((visibility("default")))
-string Conf::echo(const string &prefix) const
+string Conf::to_string(const string &prefix) const
 {
   stringstream ss;
   ss << prefix

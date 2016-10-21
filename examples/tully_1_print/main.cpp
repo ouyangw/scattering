@@ -17,7 +17,7 @@ int main()
   conf.kinetic_energy = 21.0 * 21.0 * 0.5 / 2000.0;
   conf.mass = 2000.0;
   conf.eh_builder_ptr = &tully1;
-  std::cout << conf.echo();
+  std::cout << conf.to_string();
 
   std::vector<scattering_1d::Data> refl, tran;
   std::ofstream outfile("tully_1_print.dat");

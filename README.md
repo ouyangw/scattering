@@ -281,11 +281,11 @@ struct Conf {
   Conf();
   // return a string describing the configuration
   // prefix will be added in the beginning of every line
-  std::string echo(const std::string &prefix = "#") const;
+  std::string to_string(const std::string &prefix = "#") const;
 };
 ```
 
-The member `std::string echo(const std::string &prefix = "#") const` is
+The member `std::string to_string(const std::string &prefix = "#") const` is
 provided to write the content of the instance to a `std::string`. Every line
 of the output string is prefixed by `prefix` and a space. So users can dump this
 string into their output file for a record, and the `prefix` serves as a comment
@@ -347,8 +347,8 @@ called. Please refer to the [examples](examples/) for examples.
 
 User must implement this member function in their class to return a string of
 a brief description of the electronic Hamiltonian. This string is not involved
-in the scattering calculation but only serve as an output in `Conf::echo` so
-users can keep track of what Hamiltonian is used in the calculation.
+in the scattering calculation but only serve as an output in `Conf::to_string`
+so users can keep track of what Hamiltonian is used in the calculation.
 
 ### `struct MatrixElement`
 
