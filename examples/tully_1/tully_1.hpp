@@ -1,3 +1,25 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+// Scattering: 1D scattering calculation Library
+// Copyright (C) 2016 Joseph Subotnik's group, The University of Pennsylvania
+//
+// This file is part of Scattering.
+//
+// Scattering is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// Scattering is distributed in the hope that it will be usefull, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with Scattering. If not, see <http://www.gnu.org/licenses/>.
+//
+///////////////////////////////////////////////////////////////////////////////
+
 #ifndef TULLY_1_HPP
 #define TULLY_1_HPP
 #include "scattering_1d.hpp"
