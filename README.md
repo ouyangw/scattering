@@ -75,8 +75,10 @@ Configure the build system using `cmake`:
 cmake [-D LIBSCATTERING_EIGEN_INCLUDE=<path-to-eigen-headers>] <path-to-source>
 ```
 The optional variable `LIBSCATTERING_EIGEN_INCLUDE` sets the path to the Eigen's
-header files. The default value is `/usr/local/include/`. Next section has more
-advanced ways to configure the build system, but they are optional.
+header files. The default value is `/usr/local/include/`. CMake will check
+whether Eigen's header is available. If the header cannot be found, a warning
+will be issued. Next section has more advanced ways to configure the build
+system, but they are optional.
 
 *Note: If user uses the GUI version of CMake, user should fill in the source and
 build directory and click "Configure", optionally change the variables and
