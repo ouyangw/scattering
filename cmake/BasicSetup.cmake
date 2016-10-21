@@ -24,10 +24,14 @@ elseif (NOT ${PROJNAME}_CXXSTANDARD)
   set (${PROJNAME}_CXXSTANDARD 98 CACHE STRING "c++ standard" FORCE)
 endif (${PROJNAME}_CHECK_CXXSTANDARD)
 
-set (${PROJNAME}_WARNING_FLAG -pedantic -Wall -Wextra -Wcast-align
-  -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2
-  -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs
-  -Wnoexcept -Wold-style-cast -Woverloaded-virtual -Wredundant-decls
-  -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel
-  -Wstrict-overflow=5 -Wswitch-default -Wundef -Werror -Wno-unused
+# set (${PROJNAME}_WARNING_FLAG -pedantic -Wall -Wextra -Wcast-align
+#   -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2
+#   -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs
+#   -Wnoexcept -Wold-style-cast -Woverloaded-virtual -Wredundant-decls
+#   -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel
+#   -Wstrict-overflow=5 -Wswitch-default -Wundef -Werror -Wno-unused
+#   CACHE STRING "some warning flag")
+
+# customized (reduced) for release
+set (${PROJNAME}_WARNING_FLAG -Wall -Wextra
   CACHE STRING "some warning flag")
