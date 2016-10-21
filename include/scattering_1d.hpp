@@ -25,7 +25,7 @@ struct Conf {
   Conf();
   // return a string describing the configuration
   // prefix will be added in the beginning of every line
-  std::string echo(const std::string &prefix = "#") const;
+  std::string to_string(const std::string &prefix = "#") const;
 };
 
 // struct of output data.

@@ -18,7 +18,7 @@ int main()
   conf.kinetic_energy = 21.0 * 21.0 * 0.5 / 2000.0;
   conf.mass = 2000.0;
   conf.eh_builder_ptr = &tully1;
-  std::cout << conf.echo();
+  std::cout << conf.to_string();
 
   std::cout << "checking good builder:\n";
   try {
@@ -31,7 +31,7 @@ int main()
 
   scattering_1d::Tully_1_Wrong tully1wrong(0.01, 1.6, 0.005, 1.0);
   conf.eh_builder_ptr = &tully1wrong;
-  std::cout << conf.echo();
+  std::cout << conf.to_string();
 
   std::cout << "checking bad builder:\n";
   try {
@@ -43,7 +43,7 @@ int main()
 
   scattering_1d::Tully_1_Wrong2 tully1wrong2(0.01, 1.6, 0.005, 1.0);
   conf.eh_builder_ptr = &tully1wrong2;
-  std::cout << conf.echo();
+  std::cout << conf.to_string();
 
   std::cout << "checking bad builder:\n";
   try {
