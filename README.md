@@ -343,8 +343,8 @@ called. Please refer to the [examples](examples/) for examples.
 
 User must implement this member function in their class to return a string of
 a brief description of the electronic Hamiltonian. This string is not involved
-in the scattering calculation but only serve as a output in `Conf::to_string` so
-users can keep track of what Hamiltonian is used in the calculation.
+in the scattering calculation but only serves as an output in `Conf::to_string`
+so users can keep track of what Hamiltonian is used in the calculation.
 
 ### `struct MatrixElement`
 
