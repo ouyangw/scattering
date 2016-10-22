@@ -54,7 +54,8 @@ library before compiling the codes.
 recommend using CMake because of its easiness for users. That being said, users
 are free to compile the codes in any way they find appropriate.*
 
-Download the stable release from the ["releases" tab](releases).
+Download the stable release from the
+["releases" tab](https://github.com/subotnikgroup/scattering/releases).
 
 Optionally, you can choose to have a out-of-source build so the generated files
 are in another directory, which avoids polluting the source directory:
