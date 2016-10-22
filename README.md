@@ -5,7 +5,7 @@ system. The algorithm can be found in the Appendix of the paper
 [[J. Chem. Phys. **142**, 084110 (2015)](http://dx.doi.org/10.1063/1.4908032)].
 Please cite the paper if you use the code.
 
-This version use Eigen 3
+This version uses Eigen 3
 ([http://eigen.tuxfamily.org/](http://eigen.tuxfamily.org/))
 for matrix diagonalization and solving sparse linear systems. The Eigen library
 is not included and user should install Eigen before compiling the codes. The
@@ -26,7 +26,8 @@ copy the folder named `Eigen` but not just the contents in the folder)
 - CMake([https://cmake.org/](https://cmake.org/)) configuration files are
   provided for easy building in different environments.
 - Different versions using different linear algebra libraries (in other
-  branches) (Eigen, [MKL](tree/mkl/)).
+  branches) (Eigen,
+  [MKL](https://github.com/subotnikgroup/scattering/tree/dev_mkl)).
 - Eigen's sparse linear solver makes solving the linear systems very
   fast.<sup>1</sup>
 - The Eigen library claims to be faster than any free BLAS and has
