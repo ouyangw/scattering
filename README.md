@@ -5,10 +5,10 @@ system. The algorithm can be found in the Appendix of the paper
 [[J. Chem. Phys. **142**, 084110 (2015)](http://dx.doi.org/10.1063/1.4908032)].
 Please cite the paper if you use the code.
 
-This version use [Intel&reg; MKL](https://software.intel.com/en-us/intel-mkl)
+This version uses [Intel&reg; MKL](https://software.intel.com/en-us/intel-mkl)
 for matrix diagonalization and solving sparse linear systems. The MKL library
-is not included, of course, and user has the responsibility to obtain a
-legitimate copy of the MKL library.
+is not included, of course, and user must obtain a legitimate copy of the MKL
+library before compiling the codes.
 
 ### Features:
 
@@ -22,7 +22,8 @@ legitimate copy of the MKL library.
 - CMake([https://cmake.org/](https://cmake.org/)) configuration files are
   provided for easy building in different environments.
 - Different versions using different linear algebra libraries (in other
-  branches) (MKL, [Eigen](tree/eigen)).
+  branches) (MKL,
+  [Eigen](https://github.com/subotnikgroup/scattering/tree/dev_eigen)).
 - The Intel MKL PARDISO solver can handle sparse matrix, which makes solving
   the linear systems very fast.<sup>1</sup>
 - The Intel MKL library comes with the threaded version, which takes advantage
